@@ -1,0 +1,2724 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='WolframDesktop 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       161,          7]
+NotebookDataLength[    115576,       2716]
+NotebookOptionsPosition[    108562,       2589]
+NotebookOutlinePosition[    108906,       2604]
+CellTagsIndexPosition[    108863,       2601]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Houses and Boats", "Title",
+ CellChangeTimes->{{3.7818793472730007`*^9, 
+  3.7818793499364033`*^9}},ExpressionUUID->"14f37bf5-adb3-424a-a952-\
+b1245909642c"],
+
+Cell["Data Generation", "Subtitle",
+ CellChangeTimes->{{3.7818793560725236`*^9, 
+  3.781879357744109*^9}},ExpressionUUID->"7c37bf57-04e2-46e3-9cad-\
+578f469ba203"],
+
+Cell[CellGroupData[{
+
+Cell["Initialization", "Section",
+ CellChangeTimes->{{3.7818785503816247`*^9, 
+  3.78187855225419*^9}},ExpressionUUID->"dc441ec3-0651-47c8-8fcc-\
+626d4054b916"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"house", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"EdgeForm", "[", "None", "]"}], ",", 
+     RowBox[{"Rectangle", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"2", ",", "1.5"}], "}"}]}], "]"}], ",", 
+     RowBox[{"Triangle", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0.25", ",", "1.5"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"1.75", ",", "1.5"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", "3"}], "}"}]}], "}"}], "]"}]}], "}"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"boat", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"EdgeForm", "[", "None", "]"}], ",", 
+     RowBox[{"Rectangle", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"2", ",", "0.5"}], "}"}]}], "]"}], ",", 
+     RowBox[{"Triangle", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0.5"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"2", ",", "0.5"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"2", ",", "2"}], "}"}]}], "}"}], "]"}]}], "}"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"triangle", "[", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"EdgeForm", "[", "None", "]"}], ",", 
+    RowBox[{"Triangle", "[", 
+     RowBox[{"2.5", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0"}], "}"}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Cos", "[", "#", "]"}], ",", 
+            RowBox[{"Sin", "[", "#", "]"}]}], "}"}], "&"}], "@", 
+         RowBox[{"RandomReal", "[", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", 
+            RowBox[{"Pi", "/", "3"}]}], "}"}], "]"}]}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Cos", "[", "#", "]"}], ",", 
+            RowBox[{"Sin", "[", "#", "]"}]}], "}"}], "&"}], "@", 
+         RowBox[{"RandomReal", "[", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Pi", "/", "2"}], ",", "Pi"}], "}"}], "]"}]}]}], "}"}]}], 
+     "]"}]}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rectangle", "[", "]"}], ":=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"EdgeForm", "[", "None", "]"}], ",", 
+     RowBox[{"Scale", "[", 
+      RowBox[{
+       RowBox[{"Rectangle", "[", "]"}], ",", 
+       RowBox[{"3", "*", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"RandomReal", "[", "]"}], ",", 
+          RowBox[{"RandomReal", "[", "]"}]}], "}"}]}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"randomBoat", "[", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"FaceForm", "[", 
+     RowBox[{"Directive", "[", 
+      RowBox[{"RandomColor", "[", "]"}], "]"}], "]"}], ",", 
+    RowBox[{"Translate", "[", 
+     RowBox[{
+      RowBox[{"Rotate", "[", 
+       RowBox[{"boat", ",", 
+        RowBox[{
+         RowBox[{"RandomReal", "[", "]"}], "*", "Pi"}]}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"4", 
+        RowBox[{"RandomReal", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"0", ",", "1"}], "}"}], ",", "2"}], "]"}]}], "-", "4"}]}], 
+     "]"}]}], "}"}]}], "\n", 
+ RowBox[{
+  RowBox[{"randomHouse", "[", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"FaceForm", "[", 
+     RowBox[{"Directive", "[", 
+      RowBox[{"RandomColor", "[", "]"}], "]"}], "]"}], ",", 
+    RowBox[{"Translate", "[", 
+     RowBox[{
+      RowBox[{"Rotate", "[", 
+       RowBox[{"house", ",", 
+        RowBox[{
+         RowBox[{"RandomReal", "[", "]"}], "*", "Pi"}]}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"4", 
+        RowBox[{"RandomReal", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"0", ",", "1"}], "}"}], ",", "2"}], "]"}]}], "-", "4"}]}], 
+     "]"}]}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"randomTriangle", "[", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"FaceForm", "[", 
+     RowBox[{"Directive", "[", 
+      RowBox[{"RandomColor", "[", "]"}], "]"}], "]"}], ",", 
+    RowBox[{"Translate", "[", 
+     RowBox[{
+      RowBox[{"Rotate", "[", 
+       RowBox[{
+        RowBox[{"triangle", "[", "]"}], ",", 
+        RowBox[{
+         RowBox[{"RandomReal", "[", "]"}], "*", "Pi"}]}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"3", 
+        RowBox[{"RandomReal", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"0", ",", "1"}], "}"}], ",", "2"}], "]"}]}], "-", "3"}]}], 
+     "]"}]}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"randomRectangle", "[", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"FaceForm", "[", 
+     RowBox[{"Directive", "[", 
+      RowBox[{"RandomColor", "[", "]"}], "]"}], "]"}], ",", 
+    RowBox[{"Translate", "[", 
+     RowBox[{
+      RowBox[{"Rotate", "[", 
+       RowBox[{
+        RowBox[{"rectangle", "[", "]"}], ",", 
+        RowBox[{
+         RowBox[{"RandomReal", "[", "]"}], "*", "Pi"}]}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"3", 
+        RowBox[{"RandomReal", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"0", ",", "1"}], "}"}], ",", "2"}], "]"}]}], "-", "3"}]}], 
+     "]"}]}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"imageSize", "=", "128"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"nTrain", "=", "1000"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"nVal", "=", "200"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"nTest", "=", "200"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.7818771803240423`*^9, 3.7818773145649953`*^9}, {
+  3.781877424125983*^9, 3.7818774420932956`*^9}, {3.7818774736598206`*^9, 
+  3.7818775016741323`*^9}, {3.781877591800214*^9, 3.7818776041053305`*^9}, {
+  3.7818777140888186`*^9, 3.781877715140862*^9}, {3.781877835122076*^9, 
+  3.781877835262664*^9}, {3.7818785268691435`*^9, 3.7818785686850934`*^9}, {
+  3.781878937944233*^9, 3.781878995352763*^9}, {3.7818790381312866`*^9, 
+  3.781879040757558*^9}, {3.7818790745007935`*^9, 3.7818791409928555`*^9}, {
+  3.781879197031944*^9, 3.781879211101923*^9}, {3.7818792461786075`*^9, 
+  3.7818792608001146`*^9}, {3.781879970244088*^9, 3.781880000089016*^9}, {
+  3.782733581049152*^9, 3.7827336029372396`*^9}},
+ CellLabel->"In[25]:=",ExpressionUUID->"d72d5fbc-e2ab-4ce4-a64a-d7942934aee0"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Visualization", "Section",
+ CellChangeTimes->{{3.7818785560037107`*^9, 
+  3.781878560687318*^9}},ExpressionUUID->"2c8f6352-a392-41fd-9968-\
+6a5d0bc59d34"],
+
+Cell[CellGroupData[{
+
+Cell["Boats", "Subsection",
+ CellChangeTimes->{{3.7818790074418535`*^9, 
+  3.7818790081134915`*^9}},ExpressionUUID->"8b468c17-6896-49bb-95f2-\
+0bf1dcc5543d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "1234", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Partition", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomBoat", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"{", "25", "}"}]}], "]"}], ",", "5"}], "]"}], ",", 
+   RowBox[{"Dividers", "\[Rule]", "All"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7818779249553394`*^9, 3.781877928692926*^9}, {
+  3.7818780107211137`*^9, 3.781878024719202*^9}, {3.781878073037302*^9, 
+  3.7818780806020246`*^9}, {3.781878112762046*^9, 3.781878158956882*^9}, {
+  3.781878473545777*^9, 3.781878474692992*^9}},
+ CellLabel->"In[37]:=",ExpressionUUID->"ca474eb5-9eb4-48aa-b5a4-5ed11ca355a3"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.876608492574193, 0.5219642502018771, 0.08622342695413243]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.3742128128663995, -0.9273428549822428}, {
+          0.9273428549822428, 0.3742128128663995}}, 
+          Center}], {-3.953421708123013, -0.29093534663135223`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5437567669510681, 0.47933167047242464`, 0.24534922778070478`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.7287449327877524, -0.6847852385501415}, {
+          0.6847852385501415, -0.7287449327877524}}, 
+          Center}], {-0.06002800982278256, -3.1318195137466454`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4590171869250881, 0.884729168704953, 0.5838542859901488]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.6753949757060389, -0.7374561863534939}, {
+          0.7374561863534939, 0.6753949757060389}}, 
+          Center}], {-0.32175935054348415`, -2.3046591084115384`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9872903116663083, 0.5879426561945351, 0.08280489339492836]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.7905681046345443, -0.612374127420929}, {
+          0.612374127420929, -0.7905681046345443}}, 
+          Center}], {-1.215364268558611, -0.9925350645658222}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.40154922683632943`, 0.63274125761867, 0.8243947208728843]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9455361801384035, -0.32551702267205124`}, {
+          0.32551702267205124`, 0.9455361801384035}}, 
+          Center}], {-2.114953402205267, -2.760002010810294}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7818023208468585, 0.21636803014287387`, 0.2116030477759896]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.929055313871637, -0.3699408381983181}, {
+          0.3699408381983181, -0.929055313871637}}, 
+          Center}], {-2.3673980070401575`, -1.285295344577703}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8560375350018956, 0.00781795706650823, 0.6518015208579555]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.5254700872120313, -0.8508120752818334}, {
+          0.8508120752818334, 0.5254700872120313}}, 
+          Center}], {-1.368482448324091, -0.932092165266166}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6060015082105876, 0.025526293660091737`, 0.6161950575517277]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.35645355130870277`, -0.934313044840654}, {
+          0.934313044840654, -0.35645355130870277`}}, 
+          Center}], {-0.6126270767592867, -2.438135808542536}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9380808319926894, 0.37657229649476753`, 0.9008644192724335]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9287302058140758, -0.370756260646458}, {
+          0.370756260646458, 0.9287302058140758}}, 
+          Center}], {-3.0920229785760327`, -0.054648317427179904`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8146668949499576, 0.1496529618394109, 0.9057946589188117]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.7283420272239904, -0.6852137559763726}, {
+          0.6852137559763726, 0.7283420272239904}}, 
+          Center}], {-3.1951072825521862`, -3.8101193621864518`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6973467249643173, 0.12150313337580165`, 0.6201545226866041]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.8474905909730905, -0.5308104164502442}, {
+          0.5308104164502442, -0.8474905909730905}}, 
+          Center}], {-0.06726507559637618, -3.0707521041790926`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.08642430807107115, 0.9998848173619972, 0.3506031248835497]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.6113005101436977, -0.7913985634925393}, {
+          0.7913985634925393, -0.6113005101436977}}, 
+          Center}], {-2.1730678019975684`, -1.7442787726099764`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9718637417187832, 0.4121922000263325, 0.5718204294464553]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.01710629061432283, -0.9998536767054559}, {
+          0.9998536767054559, -0.01710629061432283}}, 
+          Center}], {-2.4469127280058673`, -2.1235241805634617`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9694089572894555, 0.8793966141495548, 0.8857319580933432]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.19916453028905043`, -0.9799660656751038}, {
+          0.9799660656751038, 0.19916453028905043`}}, 
+          Center}], {-0.32582738134292644`, -3.5095391872420887`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.47355569948488707`, 0.5784974567668724, 0.061240378469571644`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.8682333455298927, -0.4961560820044131}, {
+          0.4961560820044131, 0.8682333455298927}}, 
+          Center}], {-3.481130501673505, -2.585182160896367}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4440766020340099, 0.826005503335933, 0.8317017345081383]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.9829334854515571, -0.1839613089159066}, {
+          0.1839613089159066, -0.9829334854515571}}, 
+          Center}], {-1.2140447414797304`, -2.085272778588407}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.04515994704540893, 0.8096816391593997, 0.1505455345874276]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9397074414245384, -0.34197942121032315`}, {
+          0.34197942121032315`, 0.9397074414245384}}, 
+          Center}], {-0.2106396762996363, -1.9931116657817514`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.71879922942928, 0.9299217761823355, 0.7065304801545844]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.9800591859716873, -0.19870579254896856`}, {
+          0.19870579254896856`, -0.9800591859716873}}, 
+          Center}], {-3.5806402318269566`, -0.6060748375616152}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5191346938131718, 0.26076664692135854`, 0.8703650028519698]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.5446019452351625, -0.8386946531641162}, {
+          0.8386946531641162, 0.5446019452351625}}, 
+          Center}], {-2.950111417092791, -2.5537266495626447`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.15514894427492942`, 0.8447135871358933, 0.9694183789390836]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.5703376880177632, -0.8214103247625711}, {
+          0.8214103247625711, -0.5703376880177632}}, 
+          Center}], {-1.8114705260574313`, -2.756662203167404}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.41421577414235555`, 0.3292802052835466, 0.24213565468040543`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.9629201383346141, -0.2697865956448682}, {
+          0.2697865956448682, -0.9629201383346141}}, 
+          Center}], {-2.7996741322009244`, -0.3641725436300671}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9364356599106853, 0.7432472973816968, 0.8178536200085944]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9449277693608845, -0.3272789493546187}, {
+          0.3272789493546187, 0.9449277693608845}}, 
+          Center}], {-3.462587898633889, -3.0646882880990702`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8287903392632936, 0.6313584517180162, 0.5740819900353236]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{-0.22016372060550676`, -0.9754629342671819}, {
+          0.9754629342671819, -0.22016372060550676`}}, 
+          Center}], {-1.5878999414654826`, -0.5825595937047972}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.1658918081860763, 0.2196192653362723, 0.6255787955453942]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9992608041866782, -0.038442752453398774`}, {
+          0.038442752453398774`, 0.9992608041866782}}, 
+          Center}], {-2.760694254453287, -1.0355569427469966`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.0069545743202681365`, 0.5720150811371019, 0.9045418332972368]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 0.5}], 
+          TagBox[PolygonBox[{{1, 0.5}, {2, 0.5}, {2, 2}}],
+           "Triangle"]}, {{{0.9250040218839073, -0.37995731273209615`}, {
+          0.37995731273209615`, 0.9250040218839073}}, 
+          Center}], {-1.9532146335938316`, -0.56774308052041}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]}
+   },
+   AutoDelete->False,
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{{3.7818779290399113`*^9, 3.781877939629548*^9}, {
+   3.7818779833875*^9, 3.7818780378638105`*^9}, {3.781878081184333*^9, 
+   3.7818781715140834`*^9}, {3.781878475056912*^9, 3.7818784775294256`*^9}, 
+   3.781880076131474*^9, 3.7818810699663324`*^9, 3.7827339242708197`*^9},
+ CellLabel->"Out[38]=",ExpressionUUID->"cb870865-011f-4e29-8e89-3f88ca909e1a"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Houses", "Subsection",
+ CellChangeTimes->{{3.7818790142251024`*^9, 
+  3.7818790149507666`*^9}},ExpressionUUID->"71265368-5955-4613-8ed0-\
+19d7f8e6f578"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "1213", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Partition", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomHouse", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"{", "25", "}"}]}], "]"}], ",", "5"}], "]"}], ",", 
+   RowBox[{"Dividers", "\[Rule]", "All"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.7818782139839363`*^9, 3.781878215218199*^9}, {
+  3.7818784844709015`*^9, 3.7818784886470647`*^9}},
+ CellLabel->"In[39]:=",ExpressionUUID->"0b2362e2-c9ea-46cd-9813-e459a2a2f636"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.37334298389730525`, 0.9502823105620433, 0.004019403582775416]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.5680627801550898, -0.8229852233196353}, {
+          0.8229852233196353, 0.5680627801550898}}, 
+          Center}], {-1.4215643633289679`, -0.7823756088605069}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.34028875463796027`, 0.8484571893280703, 0.08234158424204585]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.12354207707857913`, -0.9923393346991293}, {
+          0.9923393346991293, 0.12354207707857913`}}, 
+          Center}], {-3.9092953624551, -1.3184476367579672`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7394648717515215, 0.5487474723556951, 0.9434385011068585]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.5267086572052095, -0.8500458754826619}, {
+          0.8500458754826619, -0.5267086572052095}}, 
+          Center}], {-3.9647065400365937`, -1.7924182116781031`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.673601380121325, 0.7709006882251364, 0.2905775690238659]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.738993846451182, -0.6737121751217554}, {
+          0.6737121751217554, 0.738993846451182}}, 
+          Center}], {-2.343631528445975, -2.2631169896452867`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5099085593129025, 0.8064932827381801, 0.8533863293560036]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.3193910565694202, -0.9476230015061208}, {
+          0.9476230015061208, -0.3193910565694202}}, 
+          Center}], {-0.039956680324267246`, -1.7184408180598574`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9195771773191521, 0.7402018350920754, 0.3868892766573311]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.12395380453062156`, -0.9922879896191349}, {
+          0.9922879896191349, 0.12395380453062156`}}, 
+          Center}], {-3.03986460478139, -0.7221805545674513}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5050036145617702, 0.07918919252885148, 0.20189338266549894`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.09896412548479248, -0.9950910018018605}, {
+          0.9950910018018605, -0.09896412548479248}}, 
+          Center}], {-0.7467928355325171, -1.1632292453237234`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.1987760407702388, 0.33750524044088537`, 0.8972926582624154]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.2772097050522622, -0.9608094397042724}, {
+          0.9608094397042724, -0.2772097050522622}}, 
+          Center}], {-1.4025184367446792`, -2.54185556602822}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.32671822074492685`, 0.6354245775170233, 0.43455748147548134`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.13492011329000558`, -0.9908564795316283}, {
+          0.9908564795316283, 0.13492011329000558`}}, 
+          Center}], {-3.3866932041128583`, -2.496210042478639}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.562820881102265, 0.3906140666956772, 0.8587289703552983]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.9797548021110682, -0.200201218128915}, {
+          0.200201218128915, -0.9797548021110682}}, 
+          Center}], {-0.2718641055393354, -3.3901351763149288`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6141451589690408, 0.28577413491888226`, 0.45605526401999175`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.9239551639752197, -0.38250079080117594`}, {
+          0.38250079080117594`, 0.9239551639752197}}, 
+          Center}], {-1.0980030988781566`, -3.6506844834923067`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7556300551739557, 0.34426605560156665`, 0.31368560003162727`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.9616344316102883, -0.2743341392199627}, {
+          0.2743341392199627, 0.9616344316102883}}, 
+          Center}], {-3.2075022541026827`, -0.8633987403973329}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6160739070853833, 0.8291513182727859, 0.7402930440396753]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.02717847107694834, -0.999630597125718}, {
+          0.999630597125718, -0.02717847107694834}}, 
+          Center}], {-2.5602103256946664`, -1.949406600863739}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5303031378889793, 0.6763587608311521, 0.6180719061768538]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.34936421616483937`, -0.9369870033589193}, {
+          0.9369870033589193, -0.34936421616483937`}}, 
+          Center}], {-3.046577116598317, -0.46039783772318454`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5587338794434229, 0.046351279240348875`, 0.8569992117984124]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.8753753507229165, -0.4834438905878643}, {
+          0.4834438905878643, -0.8753753507229165}}, 
+          Center}], {-2.981087107740164, -2.5979818544745017`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.1869180775446182, 0.514229943163083, 0.9097132965945556]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.10652599731467999`, -0.9943099174282195}, {
+          0.9943099174282195, -0.10652599731467999`}}, 
+          Center}], {-0.627126188188341, -0.9666152042529887}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.30620300766640085`, 0.047895312929446376`, 0.6029761023932045]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.6678627179704135, -0.7442844818650809}, {
+          0.7442844818650809, 0.6678627179704135}}, 
+          Center}], {-0.3240535247083214, -2.06317310176248}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8609139973479736, 0.06807082120881369, 0.10495116548145234`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.8114538275019146, -0.584416534530375}, {
+          0.584416534530375, -0.8114538275019146}}, 
+          Center}], {-3.294318089171978, -3.3430444033740523`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6706618411972065, 0.12012612112502996`, 0.9777267505981637]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.2695967703765758, -0.962973302538819}, {
+          0.962973302538819, -0.2695967703765758}}, 
+          Center}], {-3.085809106838865, -2.9267707927192}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.3201225432628776, 0.24309604134811047`, 0.9297166090335376]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.983026486542118, -0.1834636932928667}, {
+          0.1834636932928667, -0.983026486542118}}, 
+          Center}], {-1.5077531763946208`, -3.058255330275559}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6240486191226604, 0.6153120466612112, 0.16359970415448788`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.6044650480747891, -0.7966316624739083}, {
+          0.7966316624739083, 0.6044650480747891}}, 
+          Center}], {-0.955105915092699, -2.930186892425513}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.0539084081244805, 0.2031198318383758, 0.6800048188650387]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.6246355376799579, -0.7809164136239357}, {
+          0.7809164136239357, 0.6246355376799579}}, 
+          Center}], {-3.5091058287618084`, -3.696875896287172}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.15912540746889836`, 0.1596724140038226, 0.38343050179023574`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{0.27546112941320544`, -0.9613122105655381}, {
+          0.9613122105655381, 0.27546112941320544`}}, 
+          Center}], {-1.4529422593087151`, -1.2575791553794673`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8555960955396629, 0.2567094249387305, 0.4560177176323008]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.21958645713438021`, -0.9755930441752704}, {
+          0.9755930441752704, -0.21958645713438021`}}, 
+          Center}], {-0.8793705937549765, -2.3153239782253614`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.31150229862443246`, 0.004648424414352315, 0.6449602779964632]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], RectangleBox[{0, 0}, {2, 1.5}], 
+          TagBox[PolygonBox[{{0.25, 1.5}, {1.75, 1.5}, {1, 3}}],
+           "Triangle"]}, {{{-0.07654494927371497, -0.9970661315783845}, {
+          0.9970661315783845, -0.07654494927371497}}, 
+          Center}], {-0.7280994171178561, -3.8313061621588913`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]}
+   },
+   AutoDelete->False,
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.7818782155149918`*^9, {3.781878479443534*^9, 3.78187849147322*^9}, 
+   3.781880076173334*^9, 3.7818810700311584`*^9, 3.7827339243017764`*^9},
+ CellLabel->"Out[40]=",ExpressionUUID->"2d2fff53-caca-4bcb-9974-38a4ee3d6112"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Triangles", "Subsection",
+ CellChangeTimes->{{3.781879018112681*^9, 
+  3.781879020155156*^9}},ExpressionUUID->"f90d3833-3826-4738-a8ac-\
+eb64df028168"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "123", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Partition", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomTriangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"{", "25", "}"}]}], "]"}], ",", "5"}], "]"}], ",", 
+   RowBox[{"Dividers", "\[Rule]", "All"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.781879022890831*^9, 3.781879027916362*^9}, 
+   3.7818790848848047`*^9},
+ CellLabel->"In[41]:=",ExpressionUUID->"d5074aff-daa4-4fbf-b439-6614c8457596"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4557191374699183, 0.9778259187352214, 0.9432146432722157]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.3346655939570853`, 
+            2.113922361939336}, {-1.1431837566749827`, 2.223315294436323}}],
+           "Triangle"]}, {{{0.10439756329913094`, -0.9945356447997246}, {
+          0.9945356447997246, 0.10439756329913094`}}, 
+          Center}], {-2.815085055639007, -1.8430664868125797`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4298384105199724, 0.7787439716945019, 0.0485905680051657]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.9781652195002275`, 
+            1.5286799417666266`}, {-1.0572908876327418`, 
+            2.2654218103763304`}}],
+           "Triangle"]}, {{{0.9601027042013645, -0.2796476307520365}, {
+          0.2796476307520365, 0.9601027042013645}}, 
+          Center}], {-0.3702398009576302, -2.672678688107365}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.2657577345444846, 0.9186095433997665, 0.16991597748214127`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.486419851743788, 
+            0.26022359780465304`}, {-1.6831065128876712`, 
+            1.8485541556240928`}}],
+           "Triangle"]}, {{{0.29932154590494403`, -0.9541523002943894}, {
+          0.9541523002943894, 0.29932154590494403`}}, 
+          Center}], {-0.08524401086852551, -2.0552134632625885`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.12577981483640532`, 0.27226007260221463`, 0.6057475831138748]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.9065072435278383`, 
+            1.6171673167535525`}, {-0.9290713665567365, 2.3209537685711017`}}],
+           "Triangle"]}, {{{0.025749777406531425`, -0.999668419508946}, {
+          0.999668419508946, 0.025749777406531425`}}, 
+          Center}], {-1.311170571049792, -1.3524123570064916`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4816095057329286, 0.644255574360727, 0.41755093473799887`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.8499202872516693`, 
+            1.6816048676233966`}, {-2.4953896737927144`, 
+            0.15175762230837272`}}],
+           "Triangle"]}, {{{-0.9546846446112277, -0.2976192691065784}, {
+          0.2976192691065784, -0.9546846446112277}}, 
+          Center}], {-0.38851685650270085`, -1.1050164370834006`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.3923927031408114, 0.43628730243306313`, 0.5684795282996273]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.187088099203695, 
+            1.2110514631185443`}, {-0.6234927560558702, 2.4210032596313984`}}],
+           "Triangle"]}, {{{-0.9933727088433133, -0.11493764102894209`}, {
+          0.11493764102894209`, -0.9933727088433133}}, 
+          Center}], {-2.8615612313343464`, -1.5112121841539699`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.49592078060006006`, 0.012351182833368224`, 0.48863258524445663`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.4915535108531377`, 
+            0.20533168911642172`}, {-1.6448999771050568`, 
+            1.8826322172213519`}}],
+           "Triangle"]}, {{{-0.40565383114117026`, -0.914026788054098}, {
+          0.914026788054098, -0.40565383114117026`}}, 
+          Center}], {-1.44742084785769, -0.9982913479171733}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6445135013787786, 0.41306773208705705`, 0.9945587055906595]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.6943428872837498`, 
+            1.8382606399286707`}, {-0.8028622102736407, 2.367575188101642}}],
+           "Triangle"]}, {{{0.671375298336519, -0.7411175404640954}, {
+          0.7411175404640954, 0.671375298336519}}, 
+          Center}], {-1.454504491607535, -1.9131066628857243`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6016968508282181, 0.5045860606217898, 0.5793768918859274]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.2909416521980943`, 
+            1.0007928587993948`}, {-1.781263509331583, 1.7541665571785747`}}],
+           "Triangle"]}, {{{-0.9853769627652402, -0.1703885009369775}, {
+          0.1703885009369775, -0.9853769627652402}}, 
+          Center}], {-2.004913118914, -1.6306294985870793`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8426566435245917, 0.21150301869646482`, 0.14686242942106675`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.8418389303213183`, 
+            1.6904524112653458`}, {-2.4972190821350484`, 
+            0.11788492618052346`}}],
+           "Triangle"]}, {{{0.9421603288406689, -0.3351625199195798}, {
+          0.3351625199195798, 0.9421603288406689}}, 
+          Center}], {-2.71539709178668, -0.6807281481362781}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6060983610952873, 0.4954345799119644, 0.22121226873050248`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.7341113039390197`, 
+            1.8007937098820934`}, {-2.3959105218131542`, 0.7138716771696574}}],
+           "Triangle"]}, {{{0.22195445176183742`, -0.9750570349180104}, {
+          0.9750570349180104, 0.22195445176183742`}}, 
+          Center}], {-0.5543032867158608, -0.31957796444262465`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9784724956342057, 0.13943526164146958`, 0.31263292793334596`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.9374713836850193`, 
+            1.5799381751833383`}, {-2.4350312400041223`, 0.5662356931561161}}],
+           "Triangle"]}, {{{-0.999999303424161, -0.0011803182591245509`}, {
+          0.0011803182591245509`, -0.999999303424161}}, 
+          Center}], {-2.678583838635154, -2.1185542961244863`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.2600555155199735, 0.6628076564606513, 0.08866657599782024]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.452837625393483, 
+            0.48330899376491926`}, {-2.10501528958972, 1.3486699487248563`}}],
+           "Triangle"]}, {{{0.649040730632534, -0.760753659195923}, {
+          0.760753659195923, 0.649040730632534}}, 
+          Center}], {-1.1888611919905276`, -1.7064262656107976`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.875656807499426, 0.9149510537324721, 0.06767554667441189]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.015254430267012, 
+            1.479442321041676}, {-1.4212723306200135`, 2.0566927243061746`}}],
+           "Triangle"]}, {{{-0.2514472013504173, -0.967871016681997}, {
+          0.967871016681997, -0.2514472013504173}}, 
+          Center}], {-0.7443095416137009, -1.586496147688225}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5338481531681185, 0.5254964462663685, 0.6592644199025146]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.318807255303224, 
+            0.9344158136253522}, {-0.15699670948698707`, 2.495065536856749}}],
+           "Triangle"]}, {{{-0.986246264682384, -0.16528250179630308`}, {
+          0.16528250179630308`, -0.986246264682384}}, 
+          Center}], {-1.1543669351099568`, -2.7256141162029124`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.035644200720081676`, 0.09209190412476453, 0.47299350742977686`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.1645770615780027`, 
+            1.250842174093255}, {-0.4198578615001235, 2.46449170745948}}],
+           "Triangle"]}, {{{-0.49503786412952727`, -0.8688714019221002}, {
+          0.8688714019221002, -0.49503786412952727`}}, 
+          Center}], {-1.262365445679398, -2.7679353379279448`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9184699474125102, 0.026110833796065824`, 0.9982315694074488]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.4975755736250544`, 
+            0.11007385716635508`}, {-2.496900460650867, 
+            0.12445115347591969`}}],
+           "Triangle"]}, {{{0.82413396914456, -0.5663949160277071}, {
+          0.5663949160277071, 0.82413396914456}}, 
+          Center}], {-1.449920306367104, -2.3045064878424113`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.8971083420202919, 0.35418224387397457`, 0.33997005519348766`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.4896483975517008`, 
+            0.22726824804237225`}, {-2.0837817026793743`, 
+            1.3812508155938399`}}],
+           "Triangle"]}, {{{0.2185158207508133, -0.9758334059057409}, {
+          0.9758334059057409, 0.2185158207508133}}, 
+          Center}], {-2.0542007907012545`, -1.4589453733732918`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9497378507107757, 0.2723200296068471, 0.8719353027220658]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.484039525530269, 
+            0.2820419039847726}, {-2.483933587152642, 0.28297338146018153`}}],
+           "Triangle"]}, {{{-0.03549480997901009, -0.9993698606945048}, {
+          0.9993698606945048, -0.03549480997901009}}, 
+          Center}], {-2.1521796671904547`, -0.8525417836819802}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.05423392402237637, 0.33119419248792936`, 0.6529328157335692]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.9776730144306258`, 
+            1.5293166604705783`}, {-0.6547654543968963, 2.412733346171604}}],
+           "Triangle"]}, {{{0.516920962208175, -0.8560331295164776}, {
+          0.8560331295164776, 0.516920962208175}}, 
+          Center}], {-2.7209050855875385`, -1.0596150040996672`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7238673697929903, 0.6888511944006925, 0.1524053717325713]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.2879650297692813`, 
+            2.1426959845230993`}, {-0.5212527103354224, 2.4450553392444876`}}],
+           "Triangle"]}, {{{0.5769837742547559, -0.8167556086411264}, {
+          0.8167556086411264, 0.5769837742547559}}, 
+          Center}], {-2.385362713728423, -0.6636254370740327}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.09646685943451394, 0.8479537953793443, 0.856126918232722]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.070550421383524, 
+            1.4010071207915078`}, {-2.4796252541125394`, 
+            0.31852566484872663`}}],
+           "Triangle"]}, {{{0.9539499486234189, -0.29996582392228693`}, {
+          0.29996582392228693`, 0.9539499486234189}}, 
+          Center}], {-2.444706819042202, -1.7628763051838652`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7988652255491546, 0.7942485706080558, 0.6045734248488921]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.112670970233213, 
+            1.3366455669076427`}, {-0.6227607480332953, 2.4211916592267144`}}],
+           "Triangle"]}, {{{0.9011853376418664, -0.4334339479313028}, {
+          0.4334339479313028, 0.9011853376418664}}, 
+          Center}], {-1.8504231274894716`, -2.48704477759378}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.2094341587013273, 0.4203785099331152, 0.49501522427129685`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {2.1727729237588065`, 
+            1.2365507760624341`}, {-2.0974569177160967`, 1.360394971442078}}],
+           "Triangle"]}, {{{-0.3504657629718939, -0.9365755436613367}, {
+          0.9365755436613367, -0.3504657629718939}}, 
+          Center}], {-0.6807698565807763, -1.4739011185221091`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.11759785905687825`, 0.9224867848074081, 0.5595298547759753]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          
+          TagBox[PolygonBox[{{2.5, 0.}, {1.824284412301316, 
+            1.7093818716233191`}, {-1.852662050395288, 1.6785837265460213`}}],
+           "Triangle"]}, {{{-0.8443211869219395, -0.5358374131345508}, {
+          0.5358374131345508, -0.8443211869219395}}, 
+          Center}], {-2.5078459796854893`, -1.290419490066803}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]}
+   },
+   AutoDelete->False,
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{{3.781879024752161*^9, 3.781879118348222*^9}, 
+   3.781880076213228*^9, 3.7818810700919957`*^9, 3.782733924334649*^9},
+ CellLabel->"Out[42]=",ExpressionUUID->"ba496878-09dc-472d-b89a-211a21380ade"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Rectangles", "Subsection",
+ CellChangeTimes->{{3.781879229520378*^9, 
+  3.78187923165839*^9}},ExpressionUUID->"b1442ef1-14bb-46cb-adb7-\
+cbcd00c0ec82"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Partition", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomRectangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"{", "25", "}"}]}], "]"}], ",", "5"}], "]"}], ",", 
+   RowBox[{"Dividers", "\[Rule]", "All"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.781879236768262*^9, 3.781879238427904*^9}},
+ CellLabel->"In[43]:=",ExpressionUUID->"8692d07d-c2cb-4549-8986-ea2b02f55aca"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.2823689792243951, 0.6824268752622658, 0.31467960889775126`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.4280917951646943, 0.}, {0., 
+            0.1708399661132427}}, 
+            Center}]}, {{{-0.7544299782663961, -0.6563805358882644}, {
+          0.6563805358882644, -0.7544299782663961}}, 
+          Center}], {-0.6640987495139008, -0.031196498830058594`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.24037862837431545`, 0.2343980317163672, 0.05709385606570283]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.9853461368763561, 0.}, {0., 
+            2.5029921013084633`}}, 
+            Center}]}, {{{-0.2926747403204647, -0.9562120561770535}, {
+          0.9562120561770535, -0.2926747403204647}}, 
+          Center}], {-0.7777302224551566, -0.5989225349906722}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6225650288428157, 0.24483521099219763`, 0.6542572097959274]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.9131371482462285, 0.}, {0., 
+            2.09430541042072}}, 
+            Center}]}, {{{-0.11754071050788512`, -0.9930680648240087}, {
+          0.9930680648240087, -0.11754071050788512`}}, 
+          Center}], {-1.073778071958866, -2.826561763294582}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.15299979945131392`, 0.825558396442843, 0.7342980603934268]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.8510111167831389, 0.}, {0., 
+            1.5266159164235742`}}, 
+            Center}]}, {{{-0.5424656388081776, -0.8400779908511089}, {
+          0.8400779908511089, -0.5424656388081776}}, 
+          Center}], {-2.988590082353875, -2.2531109642581555`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5208515883244305, 0.9443235953943616, 0.5998651584819719]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.13923214126334282`, 0.}, {0., 
+            1.3989738710472337`}}, 
+            Center}]}, {{{-0.04328280214785404, -0.9990628604038034}, {
+          0.9990628604038034, -0.04328280214785404}}, 
+          Center}], {-0.42610531320926537`, -1.6437880156133244`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.2271785424398387, 0.6216606757715502, 0.6852585067870762]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.0636222727715592`, 0.}, {0., 
+            1.6290487590816307`}}, Center}]}, {{{
+          0.9144605324262052, -0.40467509762126613`}, {0.40467509762126613`, 
+          0.9144605324262052}}, 
+          Center}], {-2.902593251925408, -2.5128152704497198`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5081834342009104, 0.8699058007807872, 0.4367415277897231]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.2544417816117002`, 0.}, {0., 
+            0.02279496904168088}}, 
+            Center}]}, {{{-0.9999809089250866, -0.006179141150486613}, {
+          0.006179141150486613, -0.9999809089250866}}, 
+          Center}], {-0.8298615060089336, -2.9653680537113596`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.27135888907667405`, 0.8326071187170971, 0.9414680725667337]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.1326314958982875, 0.}, {0., 
+            2.2754444052213607`}}, Center}]}, {{{
+          0.010830576432163641`, -0.9999413475870208}, {0.9999413475870208, 
+          0.010830576432163641`}}, 
+          Center}], {-1.9900464948570944`, -0.438582479660389}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5883205305075356, 0.2443715535084836, 0.3352537823842705]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.2377531919412492`, 0.}, {0., 
+            0.9651787281729318}}, Center}]}, {{{
+          0.6112204427302884, -0.7914604035506705}, {0.7914604035506705, 
+          0.6112204427302884}}, 
+          Center}], {-2.3015796482522575`, -1.155345606942771}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.15766148868016572`, 0.765874125720093, 0.36665644666523933`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.2948810554210546`, 0.}, {0., 
+            2.0054706371197084`}}, Center}]}, {{{
+          0.9544905943659417, -0.2982410187532079}, {0.2982410187532079, 
+          0.9544905943659417}}, 
+          Center}], {-2.7255084060934376`, -2.1829611566829885`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.3754673849156904, 0.11322717629777346`, 0.364348621467921]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.8685392014332471, 0.}, {0., 
+            0.17442915911828405`}}, Center}]}, {{{
+          0.1979704890641004, -0.9802079807161952}, {0.9802079807161952, 
+          0.1979704890641004}}, 
+          Center}], {-0.3892121533189412, -0.9585319648399193}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.35695641709589987`, 0.9705667270681626, 0.13231978389898913`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.3807216200194223`, 0.}, {0., 
+            0.6130415428751597}}, 
+            Center}]}, {{{-0.40592332612865867`, -0.9139071360398969}, {
+          0.9139071360398969, -0.40592332612865867`}}, 
+          Center}], {-2.6918330437093747`, -1.1894477112367043`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6575396230739545, 0.43930354735892196`, 0.24331828038933168`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.6253133690497374`, 0.}, {0., 
+            0.14242942424990424`}}, 
+            Center}]}, {{{-0.8726706931153994, -0.48830918625138364`}, {
+          0.48830918625138364`, -0.8726706931153994}}, 
+          Center}], {-0.5295324383102402, -1.9717004062731698`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.1688437591577845, 0.7863782496504086, 0.6220718975984036]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{0.635418740324772, 0.}, {0., 
+            2.3561489166872223`}}, Center}]}, {{{
+          0.988464345411712, -0.1514537482196981}, {0.1514537482196981, 
+          0.988464345411712}}, 
+          Center}], {-0.22802262699350262`, -0.27272694152120813`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.31035833157387827`, 0.7567033965196399, 0.603599356636146]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.5114132581122917`, 0.}, {0., 
+            2.397166499758419}}, Center}]}, {{{
+          0.8358591464711748, -0.5489439746098679}, {0.5489439746098679, 
+          0.8358591464711748}}, 
+          Center}], {-0.6721537730508116, -2.090555246639866}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.4326215890218308, 0.550580726112524, 0.3998144441169609]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.3748129289833277`, 0.}, {0., 
+            2.866701232462053}}, Center}]}, {{{
+          0.924834408233232, -0.3803699742985603}, {0.3803699742985603, 
+          0.924834408233232}}, 
+          Center}], {-2.6001820305866676`, -0.6598218188048794}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.5385466653851845, 0.8243918910331332, 0.4356783935817352]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.312934001421143, 0.}, {0., 
+            1.214192781721065}}, Center}]}, {{{
+          0.6925968862445715, -0.7213248596605584}, {0.7213248596605584, 
+          0.6925968862445715}}, 
+          Center}], {-2.203496786129816, -2.784911547231302}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.7491798862303263, 0.9172289483607949, 0.4793481636426813]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.191140844809614, 0.}, {0., 
+            1.2169070787598328`}}, Center}]}, {{{
+          0.9509496869685021, -0.3093455880637508}, {0.3093455880637508, 
+          0.9509496869685021}}, 
+          Center}], {-2.546777928851966, -1.7490297132007644`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.06982235131898284, 0.8715465935436755, 0.4732559041239648]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.4465952662591952`, 0.}, {0., 
+            2.332004045012688}}, Center}]}, {{{
+          0.44546825706948723`, -0.8952977336861035}, {0.8952977336861035, 
+          0.44546825706948723`}}, 
+          Center}], {-0.35271206836767277`, -2.0757643721400383`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6598392799523409, 0.8200436921199166, 0.14345916001845604`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.3298989152290708`, 0.}, {0., 
+            0.6824007502530631}}, 
+            Center}]}, {{{-0.6564971684497314, -0.7543284880060444}, {
+          0.7543284880060444, -0.6564971684497314}}, 
+          Center}], {-2.1973650318857363`, -0.3592455804737549}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]},
+    {
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.43574545142658616`, 0.519276729354653, 0.39481893308478666`]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.426982795357704, 0.}, {0., 
+            1.6861152411143394`}}, 
+            Center}]}, {{{-0.8839674392300959, -0.4675484642055695}, {
+          0.4675484642055695, -0.8839674392300959}}, 
+          Center}], {-2.006166849954708, -1.8306890426776534`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.1663824945703165, 0.46791020808546957`, 0.06865285497239837]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.166927347453883, 0.}, {0., 
+            1.5209332649499676`}}, 
+            Center}]}, {{{-0.74315870520107, -0.6691151910425208}, {
+          0.6691151910425208, -0.74315870520107}}, 
+          Center}], {-2.0494565903695046`, -0.5926532695350062}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.32094820879978836`, 0.2609573164526471, 0.8693117462461781]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{1.0230472924742566`, 0.}, {0., 
+            1.93723880523236}}, 
+            Center}]}, {{{-0.9562940820443994, -0.2924066152583754}, {
+          0.2924066152583754, -0.9562940820443994}}, 
+          Center}], {-0.5056666146872026, -1.0580679903861179`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.9518918755758781, 0.3151071040616191, 0.8732500680799331]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.3487292813367957`, 0.}, {0., 
+            1.5777570836146546`}}, Center}]}, {{{
+          0.9704215124023197, -0.2414168350939812}, {0.2414168350939812, 
+          0.9704215124023197}}, 
+          Center}], {-1.6008065894724572`, -2.4971881373955553`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}], 
+     GraphicsBox[
+      {FaceForm[RGBColor[
+       0.6782229838591802, 0.7828990996791869, 0.6139105349267016]], 
+       GeometricTransformationBox[GeometricTransformationBox[
+         {EdgeForm[None], 
+          GeometricTransformationBox[
+           RectangleBox[{0, 0}], {{{2.381291216513117, 0.}, {0., 
+            2.0965388978744146`}}, Center}]}, {{{
+          0.5459668259587183, -0.8378067945251833}, {0.8378067945251833, 
+          0.5459668259587183}}, 
+          Center}], {-2.5823189144025385`, -1.5354333417701083`}]},
+      PlotRange->{{-5, 5}, {-5, 5}}]}
+   },
+   AutoDelete->False,
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{{3.781879238646104*^9, 3.7818792629622197`*^9}, 
+   3.7818800762601023`*^9, 3.7818810701558256`*^9, 3.7827339243665886`*^9},
+ CellLabel->"Out[43]=",ExpressionUUID->"da3cac23-c57d-4841-a3e9-7177c4649241"]
+}, Open  ]]
+}, Closed]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Data Generation", "Section",
+ CellChangeTimes->{{3.7818792983021393`*^9, 
+  3.7818793003364177`*^9}},ExpressionUUID->"e3aab5fc-e8e9-4395-83c0-\
+d63db0df0e20"],
+
+Cell[CellGroupData[{
+
+Cell["Training Data", "Subsection",
+ CellChangeTimes->{{3.7818793884484534`*^9, 
+  3.7818793901688867`*^9}},ExpressionUUID->"543721f8-f243-4b19-824c-\
+3d9996958fd5"],
+
+Cell[CellGroupData[{
+
+Cell["Boats", "Subsubsection",
+ CellChangeTimes->{{3.781880129671077*^9, 
+  3.7818801303344526`*^9}},ExpressionUUID->"c372c2b2-0028-41de-a405-\
+1dff7cb65de3"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\training\\\\boat\>\"", "]"}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.7818795245296555`*^9, 3.781879589139017*^9}},
+ CellLabel->"In[44]:=",ExpressionUUID->"14d4f981-2716-4a86-ad9a-2c6dc5ca999d"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "123", "]"}], ";", 
+  RowBox[{"boats", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomBoat", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTrain", "/", "4"}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818795190093822`*^9, 3.781879521087825*^9}, {
+  3.781879597128409*^9, 3.7818796527120757`*^9}, {3.7818797212111444`*^9, 
+  3.781879730423456*^9}, {3.781879766378615*^9, 3.7818797914109077`*^9}, {
+  3.7827336194497013`*^9, 3.7827336237616653`*^9}, {3.7827337070648026`*^9, 
+  3.7827337087403803`*^9}},
+ CellLabel->"In[45]:=",ExpressionUUID->"fe200658-5dd4-42eb-9810-048451632b2c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"For", "[", 
+   RowBox[{
+    RowBox[{"i", "=", "1"}], ",", 
+    RowBox[{"i", "\[LessEqual]", 
+     RowBox[{"Length", "@", "boats"}]}], ",", 
+    RowBox[{"i", "++"}], ",", 
+    RowBox[{"Export", "[", 
+     RowBox[{
+      RowBox[{"\"\<boat_train_\>\"", "<>", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"i", "<", "10"}], ",", 
+         RowBox[{"\"\<000\>\"", "<>", 
+          RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"i", "<", "100"}], ",", 
+           RowBox[{"\"\<00\>\"", "<>", 
+            RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"i", "<", "1000"}], ",", 
+             RowBox[{"\"\<0\>\"", "<>", 
+              RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+       "<>", "\"\<.jpg\>\""}], ",", 
+      RowBox[{"boats", "[", 
+       RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818798310413756`*^9, 3.7818799405999975`*^9}, {
+  3.78273384780964*^9, 3.7827338656895795`*^9}},
+ CellLabel->"In[46]:=",ExpressionUUID->"09a2f4a9-08f3-405b-80b9-0498811ca434"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Houses", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 
+  3.781880136382963*^9}},ExpressionUUID->"2bb710e4-4028-437a-9eb8-\
+2560b3de612f"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\training\\\\house\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "123", "]"}], ";", 
+  RowBox[{"houses", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomHouse", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTrain", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.782733630209404*^9, 3.7827336349297805`*^9}, 3.782733712512596*^9},
+ CellLabel->"In[47]:=",ExpressionUUID->"fe97a2e5-e9c3-4927-bd34-ff71e614cb8a"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "houses"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<house_train_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"houses", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, 
+   3.7827338841227846`*^9},
+ CellLabel->"In[49]:=",ExpressionUUID->"ef438f6a-8349-4944-9b3d-1fb93133cb96"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Triangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 
+  3.7818802167990117`*^9}},ExpressionUUID->"7bb74462-b82f-4463-b069-\
+5086a818c496"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\training\\\\triangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "123", "]"}], ";", 
+  RowBox[{"triangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomTriangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTrain", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.782733639304983*^9, 
+   3.7827336436170454`*^9}, 3.782733713681507*^9},
+ CellLabel->"In[50]:=",ExpressionUUID->"1045d398-c6b6-480d-afb6-70e92e72af2a"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "triangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<triangle_train_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"triangles", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, 3.782733886530264*^9},
+ CellLabel->"In[52]:=",ExpressionUUID->"e9562101-bbea-4b67-aa09-51010b40790c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rectangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 3.7818802167990117`*^9}, {3.781880271294712*^9, 
+  3.7818802729584*^9}},ExpressionUUID->"8e4f3b01-b20d-45d9-8159-8307d3413e49"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\training\\\\rectangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "123", "]"}], ";", 
+  RowBox[{"rectangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomRectangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTrain", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.7818802753203754`*^9, 
+   3.7818802900804405`*^9}, {3.7827336517534423`*^9, 3.782733659131102*^9}, 
+   3.7827337153774652`*^9},
+ CellLabel->"In[53]:=",ExpressionUUID->"02848436-e16c-4b99-9b1d-69a34eeb167f"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "rectangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<rectangle_train_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"rectangles", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, {3.781880298870894*^9, 
+   3.7818803053193855`*^9}, 3.7827338886977963`*^9},
+ CellLabel->"In[55]:=",ExpressionUUID->"5a1bcfbf-ead2-4ae5-8092-88c609083ea1"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Validation Data", "Subsection",
+ CellChangeTimes->{{3.7818793884484534`*^9, 3.7818793901688867`*^9}, {
+  3.781880328671338*^9, 
+  3.781880329599491*^9}},ExpressionUUID->"5e2c1d6e-245f-4bb4-84f7-\
+5a70fc3e1068"],
+
+Cell[CellGroupData[{
+
+Cell["Boats", "Subsubsection",
+ CellChangeTimes->{{3.781880129671077*^9, 
+  3.7818801303344526`*^9}},ExpressionUUID->"7d1f4aeb-8ac5-4f98-b3d7-\
+06db9c3a437a"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\validation\\\\boat\>\"", "]"}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.7818795245296555`*^9, 3.781879589139017*^9}, {
+  3.7818803371292963`*^9, 3.7818803382632647`*^9}},
+ CellLabel->"In[56]:=",ExpressionUUID->"8979f2a1-4a70-452f-a3d1-4ab7a3f271ad"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"boats", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomBoat", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nVal", "/", "4"}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818795190093822`*^9, 3.781879521087825*^9}, {
+  3.781879597128409*^9, 3.7818796527120757`*^9}, {3.7818797212111444`*^9, 
+  3.781879730423456*^9}, {3.781879766378615*^9, 3.7818797914109077`*^9}, {
+  3.781880351137135*^9, 3.7818803667841473`*^9}, {3.781881050082247*^9, 
+  3.7818810501440725`*^9}, {3.7827336685537825`*^9, 3.7827336833697214`*^9}},
+ CellLabel->"In[57]:=",ExpressionUUID->"c7ae2b20-17c8-4cc0-87b3-d90d2c19fda7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"For", "[", 
+   RowBox[{
+    RowBox[{"i", "=", "1"}], ",", 
+    RowBox[{"i", "\[LessEqual]", 
+     RowBox[{"Length", "@", "boats"}]}], ",", 
+    RowBox[{"i", "++"}], ",", 
+    RowBox[{"Export", "[", 
+     RowBox[{
+      RowBox[{"\"\<boat_val_\>\"", "<>", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"i", "<", "10"}], ",", 
+         RowBox[{"\"\<000\>\"", "<>", 
+          RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"i", "<", "100"}], ",", 
+           RowBox[{"\"\<00\>\"", "<>", 
+            RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"i", "<", "1000"}], ",", 
+             RowBox[{"\"\<0\>\"", "<>", 
+              RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+       "<>", "\"\<.jpg\>\""}], ",", 
+      RowBox[{"boats", "[", 
+       RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818798310413756`*^9, 3.7818799405999975`*^9}, {
+   3.78188093501702*^9, 3.7818809378232856`*^9}, 3.7827338924981823`*^9},
+ CellLabel->"In[58]:=",ExpressionUUID->"a4bf4f08-28ee-4858-b118-2d74bc8a5833"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Houses", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 
+  3.781880136382963*^9}},ExpressionUUID->"9f9a3219-12ec-479f-8da6-\
+58eb9e268997"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\validation\\\\house\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"houses", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomHouse", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nVal", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+  3.7818803425616045`*^9, 3.7818803717200594`*^9}, {3.781881051464581*^9, 
+  3.7818810515752425`*^9}, {3.782733685697874*^9, 3.782733695426096*^9}},
+ CellLabel->"In[59]:=",ExpressionUUID->"abbf7402-a01a-40ae-a476-3d5b73061726"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "houses"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<house_val_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"houses", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818809404253664`*^9, 3.781880941014789*^9}, 3.782733895001747*^9},
+ CellLabel->"In[61]:=",ExpressionUUID->"7796f0d9-1090-47ca-9e1e-186d6f3ba8be"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Triangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 
+  3.7818802167990117`*^9}},ExpressionUUID->"2be40e8d-adf5-4865-9d63-\
+d31f56eeed15"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\validation\\\\triangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"triangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomTriangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nVal", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+  3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.7818803441846523`*^9, 
+  3.7818803741841965`*^9}, {3.7818810525608163`*^9, 3.7818810526545734`*^9}, {
+  3.7827336905462832`*^9, 3.782733696552628*^9}},
+ CellLabel->"In[62]:=",ExpressionUUID->"5e127b46-1afa-4caa-b1b3-36d30abbe4ea"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "triangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<triangle_val_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"triangles", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, {3.7818809435693536`*^9, 
+   3.781880944078029*^9}, 3.7827338973060284`*^9},
+ CellLabel->"In[64]:=",ExpressionUUID->"12783b7e-d4d8-43f1-b12e-45548f2b3c5d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rectangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 3.7818802167990117`*^9}, {3.781880271294712*^9, 
+  3.7818802729584*^9}},ExpressionUUID->"e16c4a50-972f-43a8-a8cd-1ec870581527"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\validation\\\\rectangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"rectangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomRectangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nVal", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+  3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.7818802753203754`*^9, 
+  3.7818802900804405`*^9}, {3.7818803459131384`*^9, 3.781880375503477*^9}, {
+  3.7818810542731147`*^9, 3.781881054351904*^9}, {3.782733698681684*^9, 
+  3.7827337016739445`*^9}},
+ CellLabel->"In[65]:=",ExpressionUUID->"b0e5e578-06cb-45a0-b13f-beb09b98ffa2"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "rectangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<rectangle_val_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"rectangles", "[", 
+      RowBox[{"[", "i", "]"}], "]"}]}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, {3.781880298870894*^9, 
+   3.7818803053193855`*^9}, {3.781880954857389*^9, 3.7818809553580484`*^9}, 
+   3.782733901057918*^9},
+ CellLabel->"In[67]:=",ExpressionUUID->"915cc710-2cb0-4673-9d7c-f5f4331cbb59"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Testing Data", "Subsection",
+ CellChangeTimes->{{3.7818793884484534`*^9, 3.7818793901688867`*^9}, {
+  3.781880328671338*^9, 3.781880329599491*^9}, {3.781880412982405*^9, 
+  3.78188041454312*^9}},ExpressionUUID->"d5d4f9a5-ed25-4916-aeee-\
+33c3917b9093"],
+
+Cell[CellGroupData[{
+
+Cell["Boats", "Subsubsection",
+ CellChangeTimes->{{3.781880129671077*^9, 
+  3.7818801303344526`*^9}},ExpressionUUID->"9d2c7447-d524-4ad2-b49b-\
+f93061c3da53"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\testing\\\\boat\>\"", "]"}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.7818795245296555`*^9, 3.781879589139017*^9}, {
+  3.7818803371292963`*^9, 3.7818803382632647`*^9}, {3.7818808084484005`*^9, 
+  3.7818808097019076`*^9}},
+ CellLabel->"In[68]:=",ExpressionUUID->"db2d09dc-5d39-4991-bdec-cfee54563fff"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"boats", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomBoat", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTest", "/", "4"}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818795190093822`*^9, 3.781879521087825*^9}, {
+  3.781879597128409*^9, 3.7818796527120757`*^9}, {3.7818797212111444`*^9, 
+  3.781879730423456*^9}, {3.781879766378615*^9, 3.7818797914109077`*^9}, {
+  3.781880351137135*^9, 3.7818803667841473`*^9}, {3.7818810590477266`*^9, 
+  3.7818810591345015`*^9}, {3.782733738809598*^9, 3.7827337433373265`*^9}},
+ CellLabel->"In[69]:=",ExpressionUUID->"7ed07834-c73a-4c46-92b1-2ba6c493b74f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"For", "[", 
+   RowBox[{
+    RowBox[{"i", "=", "1"}], ",", 
+    RowBox[{"i", "\[LessEqual]", 
+     RowBox[{"Length", "@", "boats"}]}], ",", 
+    RowBox[{"i", "++"}], ",", 
+    RowBox[{"Export", "[", 
+     RowBox[{
+      RowBox[{"\"\<boat_test_\>\"", "<>", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"i", "<", "10"}], ",", 
+         RowBox[{"\"\<000\>\"", "<>", 
+          RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"i", "<", "100"}], ",", 
+           RowBox[{"\"\<00\>\"", "<>", 
+            RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"i", "<", "1000"}], ",", 
+             RowBox[{"\"\<0\>\"", "<>", 
+              RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+       "<>", "\"\<.jpg\>\""}], ",", 
+      RowBox[{"ImageEffect", "[", 
+       RowBox[{
+        RowBox[{"ImageEffect", "[", 
+         RowBox[{
+          RowBox[{"boats", "[", 
+           RowBox[{"[", "i", "]"}], "]"}], ",", 
+          RowBox[{"{", "\"\<Noise\>\"", "}"}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\"\<MotionBlur\>\"", ",", "5"}], "}"}]}], "]"}]}], "]"}]}], 
+   "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.7818798310413756`*^9, 3.7818799405999975`*^9}, {
+   3.781880852017118*^9, 3.7818808593307233`*^9}, {3.7818809255983005`*^9, 
+   3.7818809259024887`*^9}, 3.782733907066179*^9},
+ CellLabel->"In[70]:=",ExpressionUUID->"42ad7a65-8022-4ca8-bcee-c06b9ef64ebc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Houses", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 
+  3.781880136382963*^9}},ExpressionUUID->"a2fade57-0a97-4d68-b634-\
+7a4956aa3bd9"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\testing\\\\house\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"houses", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomHouse", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTest", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.7818803425616045`*^9, 3.7818803717200594`*^9}, 3.7818808157297325`*^9, {
+   3.7818810599503417`*^9, 3.7818810600310965`*^9}, {3.782733746761548*^9, 
+   3.782733757434003*^9}},
+ CellLabel->"In[71]:=",ExpressionUUID->"8b839074-1df6-451d-b735-e07ae56fd536"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "houses"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<house_test_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"ImageEffect", "[", 
+      RowBox[{
+       RowBox[{"ImageEffect", "[", 
+        RowBox[{
+         RowBox[{"houses", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], ",", 
+         RowBox[{"{", "\"\<Noise\>\"", "}"}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<MotionBlur\>\"", ",", "5"}], "}"}]}], "]"}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.781880864192899*^9, 3.7818808942297745`*^9}, {3.7818809665664697`*^9, 
+   3.7818809669344854`*^9}, 3.7827339098741474`*^9},
+ CellLabel->"In[73]:=",ExpressionUUID->"2004e1f5-cc7d-4e16-a3f6-80d3c8fcdf2c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Triangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 
+  3.7818802167990117`*^9}},ExpressionUUID->"53829649-35dd-4be5-bf9a-\
+22400ee73dff"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\testing\\\\triangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"triangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomTriangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTest", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.7818803441846523`*^9, 
+   3.7818803741841965`*^9}, 3.7818808183754735`*^9, {3.781881061245846*^9, 
+   3.7818810613356066`*^9}, {3.7827337479459352`*^9, 3.7827337546732206`*^9}},
+ CellLabel->"In[74]:=",ExpressionUUID->"d3fe9c7d-b041-4594-a264-0b981e519626"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "triangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<triangle_test_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"ImageEffect", "[", 
+      RowBox[{
+       RowBox[{"ImageEffect", "[", 
+        RowBox[{
+         RowBox[{"triangles", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], ",", 
+         RowBox[{"{", "\"\<Noise\>\"", "}"}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<MotionBlur\>\"", ",", "5"}], "}"}]}], "]"}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, {3.7818808763365555`*^9, 
+   3.7818808874546366`*^9}, 3.7827339123061256`*^9},
+ CellLabel->"In[76]:=",ExpressionUUID->"0bc97c53-2ac2-4fff-9c36-337d74beaac7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rectangles", "Subsubsection",
+ CellChangeTimes->{{3.7818801356309757`*^9, 3.781880136382963*^9}, {
+  3.7818802158954306`*^9, 3.7818802167990117`*^9}, {3.781880271294712*^9, 
+  3.7818802729584*^9}},ExpressionUUID->"19b0c6ec-dca1-4e9d-8cdb-3d71144e8edc"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\ged11\\\\Dropbox\\\\0 TUM\\\\Deep Learning \
+Seminar\\\\HousesAndBoats\\\\data\\\\testing\\\\rectangle\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "223", "]"}], ";", 
+  RowBox[{"rectangles", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Rasterize", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{"randomRectangle", "[", "]"}], ",", 
+         RowBox[{"PlotRange", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"-", "5"}], ",", "5"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"ImageResolution", "\[Rule]", "Automatic"}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "imageSize"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"nTest", "/", "4"}], "}"}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7818801409766684`*^9, 3.781880155368398*^9}, {
+   3.7818802187300262`*^9, 3.7818802339316216`*^9}, {3.7818802753203754`*^9, 
+   3.7818802900804405`*^9}, {3.7818803459131384`*^9, 3.781880375503477*^9}, 
+   3.781880820231738*^9, {3.781881062805929*^9, 3.7818810628946238`*^9}, {
+   3.7827337492985067`*^9, 3.7827337520331974`*^9}},
+ CellLabel->"In[77]:=",ExpressionUUID->"b28550a2-dc00-4c58-a36d-ec4fce03d564"],
+
+Cell[BoxData[
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", 
+    RowBox[{"Length", "@", "rectangles"}]}], ",", 
+   RowBox[{"i", "++"}], ",", 
+   RowBox[{"Export", "[", 
+    RowBox[{
+     RowBox[{"\"\<rectangle_test_\>\"", "<>", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"i", "<", "10"}], ",", 
+        RowBox[{"\"\<000\>\"", "<>", 
+         RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "<", "100"}], ",", 
+          RowBox[{"\"\<00\>\"", "<>", 
+           RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"i", "<", "1000"}], ",", 
+            RowBox[{"\"\<0\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], ",", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}]}], "]"}]}], "]"}], 
+      "<>", "\"\<.jpg\>\""}], ",", 
+     RowBox[{"ImageEffect", "[", 
+      RowBox[{
+       RowBox[{"ImageEffect", "[", 
+        RowBox[{
+         RowBox[{"rectangles", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], ",", 
+         RowBox[{"{", "\"\<Noise\>\"", "}"}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<MotionBlur\>\"", ",", "5"}], "}"}]}], "]"}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7818801661278663`*^9, 3.7818801744803605`*^9}, {
+   3.7818802378346896`*^9, 3.7818802461275487`*^9}, {3.781880298870894*^9, 
+   3.7818803053193855`*^9}, {3.781880902666232*^9, 3.7818809089423475`*^9}, 
+   3.7827339143937025`*^9},
+ CellLabel->"In[79]:=",ExpressionUUID->"78b080f9-0c4a-4ed0-a2aa-bcda0395f663"]
+}, Open  ]]
+}, Closed]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1280, 647},
+WindowMargins->{{-8, Automatic}, {Automatic, -8}},
+FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 11, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[583, 22, 163, 3, 96, "Title",ExpressionUUID->"14f37bf5-adb3-424a-a952-b1245909642c"],
+Cell[749, 27, 163, 3, 53, "Subtitle",ExpressionUUID->"7c37bf57-04e2-46e3-9cad-578f469ba203"],
+Cell[CellGroupData[{
+Cell[937, 34, 160, 3, 67, "Section",ExpressionUUID->"dc441ec3-0651-47c8-8fcc-626d4054b916"],
+Cell[1100, 39, 6481, 191, 254, "Input",ExpressionUUID->"d72d5fbc-e2ab-4ce4-a64a-d7942934aee0",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7618, 235, 160, 3, 67, "Section",ExpressionUUID->"2c8f6352-a392-41fd-9968-6a5d0bc59d34"],
+Cell[CellGroupData[{
+Cell[7803, 242, 157, 3, 53, "Subsection",ExpressionUUID->"8b468c17-6896-49bb-95f2-0bf1dcc5543d"],
+Cell[CellGroupData[{
+Cell[7985, 249, 1112, 27, 48, "Input",ExpressionUUID->"ca474eb5-9eb4-48aa-b5a4-5ed11ca355a3"],
+Cell[9100, 278, 13820, 266, 70, "Output",ExpressionUUID->"cb870865-011f-4e29-8e89-3f88ca909e1a"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[22969, 550, 158, 3, 37, "Subsection",ExpressionUUID->"71265368-5955-4613-8ed0-19d7f8e6f578"],
+Cell[CellGroupData[{
+Cell[23152, 557, 969, 25, 48, "Input",ExpressionUUID->"0b2362e2-c9ea-46cd-9813-e459a2a2f636"],
+Cell[24124, 584, 13849, 265, 70, "Output",ExpressionUUID->"2d2fff53-caca-4bcb-9974-38a4ee3d6112"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[38022, 855, 157, 3, 37, "Subsection",ExpressionUUID->"f90d3833-3826-4738-a8ac-eb64df028168"],
+Cell[CellGroupData[{
+Cell[38204, 862, 944, 25, 48, "Input",ExpressionUUID->"d5074aff-daa4-4fbf-b439-6614c8457596"],
+Cell[39151, 889, 15329, 322, 70, "Output",ExpressionUUID->"ba496878-09dc-472d-b89a-211a21380ade"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[54529, 1217, 157, 3, 37, "Subsection",ExpressionUUID->"b1442ef1-14bb-46cb-adb7-cbcd00c0ec82"],
+Cell[CellGroupData[{
+Cell[54711, 1224, 831, 22, 28, "Input",ExpressionUUID->"8692d07d-c2cb-4549-8986-ea2b02f55aca"],
+Cell[55545, 1248, 14843, 314, 70, "Output",ExpressionUUID->"da3cac23-c57d-4841-a3e9-7177c4649241"]
+}, Open  ]]
+}, Closed]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[70449, 1569, 164, 3, 67, "Section",ExpressionUUID->"e3aab5fc-e8e9-4395-83c0-d63db0df0e20"],
+Cell[CellGroupData[{
+Cell[70638, 1576, 165, 3, 53, "Subsection",ExpressionUUID->"543721f8-f243-4b19-824c-3d9996958fd5"],
+Cell[CellGroupData[{
+Cell[70828, 1583, 158, 3, 44, "Subsubsection",ExpressionUUID->"c372c2b2-0028-41de-a405-1dff7cb65de3"],
+Cell[70989, 1588, 360, 8, 28, "Input",ExpressionUUID->"14d4f981-2716-4a86-ad9a-2c6dc5ca999d"],
+Cell[71352, 1598, 1230, 29, 48, "Input",ExpressionUUID->"fe200658-5dd4-42eb-9810-048451632b2c"],
+Cell[72585, 1629, 1275, 32, 48, "Input",ExpressionUUID->"09a2f4a9-08f3-405b-80b9-0498811ca434"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[73897, 1666, 159, 3, 44, "Subsubsection",ExpressionUUID->"2bb710e4-4028-437a-9eb8-2560b3de612f"],
+Cell[74059, 1671, 1267, 32, 67, "Input",ExpressionUUID->"fe97a2e5-e9c3-4927-bd34-ff71e614cb8a"],
+Cell[75329, 1705, 1211, 31, 48, "Input",ExpressionUUID->"ef438f6a-8349-4944-9b3d-1fb93133cb96"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[76577, 1741, 215, 4, 44, "Subsubsection",ExpressionUUID->"7bb74462-b82f-4463-b069-5086a818c496"],
+Cell[76795, 1747, 1330, 33, 67, "Input",ExpressionUUID->"1045d398-c6b6-480d-afb6-70e92e72af2a"],
+Cell[78128, 1782, 1268, 31, 67, "Input",ExpressionUUID->"e9562101-bbea-4b67-aa09-51010b40790c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[79433, 1818, 258, 3, 44, "Subsubsection",ExpressionUUID->"8e4f3b01-b20d-45d9-8159-8307d3413e49"],
+Cell[79694, 1823, 1389, 34, 67, "Input",ExpressionUUID->"02848436-e16c-4b99-9b1d-69a34eeb167f"],
+Cell[81086, 1859, 1325, 32, 67, "Input",ExpressionUUID->"5a1bcfbf-ead2-4ae5-8092-88c609083ea1"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[82460, 1897, 216, 4, 37, "Subsection",ExpressionUUID->"5e2c1d6e-245f-4bb4-84f7-5a70fc3e1068"],
+Cell[CellGroupData[{
+Cell[82701, 1905, 158, 3, 44, "Subsubsection",ExpressionUUID->"7d1f4aeb-8ac5-4f98-b3d7-06db9c3a437a"],
+Cell[82862, 1910, 415, 9, 28, "Input",ExpressionUUID->"8979f2a1-4a70-452f-a3d1-4ab7a3f271ad"],
+Cell[83280, 1921, 1274, 29, 48, "Input",ExpressionUUID->"c7ae2b20-17c8-4cc0-87b3-d90d2c19fda7"],
+Cell[84557, 1952, 1298, 32, 48, "Input",ExpressionUUID->"a4bf4f08-28ee-4858-b118-2d74bc8a5833"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[85892, 1989, 159, 3, 44, "Subsubsection",ExpressionUUID->"9f9a3219-12ec-479f-8da6-58eb9e268997"],
+Cell[86054, 1994, 1343, 33, 67, "Input",ExpressionUUID->"abbf7402-a01a-40ae-a476-3d5b73061726"],
+Cell[87400, 2029, 1255, 31, 48, "Input",ExpressionUUID->"7796f0d9-1090-47ca-9e1e-186d6f3ba8be"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[88692, 2065, 215, 4, 44, "Subsubsection",ExpressionUUID->"2be40e8d-adf5-4865-9d63-d31f56eeed15"],
+Cell[88910, 2071, 1409, 34, 67, "Input",ExpressionUUID->"5e127b46-1afa-4caa-b1b3-36d30abbe4ea"],
+Cell[90322, 2107, 1320, 32, 48, "Input",ExpressionUUID->"12783b7e-d4d8-43f1-b12e-45548f2b3c5d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[91679, 2144, 258, 3, 44, "Subsubsection",ExpressionUUID->"e16c4a50-972f-43a8-a8cd-1ec870581527"],
+Cell[91940, 2149, 1461, 35, 67, "Input",ExpressionUUID->"b0e5e578-06cb-45a0-b13f-beb09b98ffa2"],
+Cell[93404, 2186, 1373, 33, 67, "Input",ExpressionUUID->"915cc710-2cb0-4673-9d7c-f5f4331cbb59"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[94826, 2225, 258, 4, 37, "Subsection",ExpressionUUID->"d5d4f9a5-ed25-4916-aeee-33c3917b9093"],
+Cell[CellGroupData[{
+Cell[95109, 2233, 158, 3, 44, "Subsubsection",ExpressionUUID->"9d2c7447-d524-4ad2-b49b-f93061c3da53"],
+Cell[95270, 2238, 465, 10, 28, "Input",ExpressionUUID->"db2d09dc-5d39-4991-bdec-cfee54563fff"],
+Cell[95738, 2250, 1275, 29, 48, "Input",ExpressionUUID->"7ed07834-c73a-4c46-92b1-2ba6c493b74f"],
+Cell[97016, 2281, 1627, 41, 67, "Input",ExpressionUUID->"42ad7a65-8022-4ca8-bcee-c06b9ef64ebc"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[98680, 2327, 159, 3, 44, "Subsubsection",ExpressionUUID->"a2fade57-0a97-4d68-b634-7a4956aa3bd9"],
+Cell[98842, 2332, 1373, 34, 67, "Input",ExpressionUUID->"8b839074-1df6-451d-b735-e07ae56fd536"],
+Cell[100218, 2368, 1579, 40, 67, "Input",ExpressionUUID->"2004e1f5-cc7d-4e16-a3f6-80d3c8fcdf2c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[101834, 2413, 215, 4, 44, "Subsubsection",ExpressionUUID->"53829649-35dd-4be5-bf9a-22400ee73dff"],
+Cell[102052, 2419, 1434, 34, 67, "Input",ExpressionUUID->"d3fe9c7d-b041-4594-a264-0b981e519626"],
+Cell[103489, 2455, 1590, 40, 67, "Input",ExpressionUUID->"0bc97c53-2ac2-4fff-9c36-337d74beaac7"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[105116, 2500, 258, 3, 44, "Subsubsection",ExpressionUUID->"19b0c6ec-dca1-4e9d-8cdb-3d71144e8edc"],
+Cell[105377, 2505, 1487, 35, 67, "Input",ExpressionUUID->"b28550a2-dc00-4c58-a36d-ec4fce03d564"],
+Cell[106867, 2542, 1643, 41, 67, "Input",ExpressionUUID->"78b080f9-0c4a-4ed0-a2aa-bcda0395f663"]
+}, Open  ]]
+}, Closed]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
