@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-def get_train_val_data(data_dir,verbose=False):
+def get_train_val_data(data_dir, verbose=False):
     training_data = ImageFolder(root=os.path.join(data_dir, "training"), transform=transforms.ToTensor())
     validation_data = ImageFolder(root=os.path.join(data_dir, "validation"), transform=transforms.ToTensor())
     training_data
@@ -16,7 +16,7 @@ def get_train_val_data(data_dir,verbose=False):
     return training_data, validation_data
 
 
-def get_test_data(data_dir,verbose=False):
+def get_test_data(data_dir, verbose=False):
     testing_data = ImageFolder(root=os.path.join(data_dir, "testing"), transform=transforms.ToTensor())
     if verbose:
         print(len(testing_data.classes), "Classes:", testing_data.classes)
@@ -27,7 +27,8 @@ def get_test_data(data_dir,verbose=False):
 def get_loader(data, batch_size=16, shuffle=True, num_workers=4):
     return DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
 
-def show_images(data_loader,classes, num_imgs=8):
+
+def show_images(data_loader, classes, num_imgs=8):
     batch = next(iter(data_loader))
     samples, targets = batch
     if len(samples) > num_imgs:
@@ -35,7 +36,7 @@ def show_images(data_loader,classes, num_imgs=8):
         targets = targets[0:num_imgs]
     else:
         num_imgs = len(samples)
-    figsize=(10, 8)
+    figsize = (10, 8)
     ncols = 4
     nrows = num_imgs // 4
     if ncols * nrows < num_imgs:
