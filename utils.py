@@ -2,7 +2,11 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt
+
 import os
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 def get_train_val_data(data_dir, verbose=False):

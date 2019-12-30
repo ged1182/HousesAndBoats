@@ -8,6 +8,9 @@ import numpy as np
 from torch.utils.data.sampler import SubsetRandomSampler
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+def compute_accuracy(predictions, targets):
+    return torch.mean((predictions==targets).double())
+
 def max_pool_out_size(in_size, nb_max_pool_layers=2):
     h, w = in_size
     for i in range(nb_max_pool_layers):
@@ -43,20 +46,20 @@ class BaselineCNNModel(pl.LightningModule):
         super(BaselineCNNModel, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels=self.in_channels, out_channels=256, kernel_size=(5, 5),
-                      stride=1, padding=2),  # 126x126
+                      stride=1, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # 63x63
-            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(5, 5),stride=1,
-                      padding=2),  # 61x61
+            # nn.MaxPool2d(kernel_size=(2, 2), stride=2),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(5, 5), stride=1,
+                      padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # 32x32
+            # nn.MaxPool2d(kernel_size=(2, 2), stride=2),
             nn.Conv2d(in_channels=256, out_channels=128, kernel_size=(5, 5),
-                      stride=1, padding=2),  # 30x30
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # 14x14
+                      stride=1, padding=2),
+            nn.ReLU()#,
+            # nn.MaxPool2d(kernel_size=(2, 2), stride=2)
         )
 
-        self.h, self.w = max_pool_out_size([self.h, self.w], nb_max_pool_layers=2)
+        # self.h, self.w = max_pool_out_size([self.h, self.w], nb_max_pool_layers=3)
 
 
         self.classifier = nn.Sequential(
@@ -64,9 +67,12 @@ class BaselineCNNModel(pl.LightningModule):
             nn.ReLU(),
             nn.Linear(in_features=328, out_features=192),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(in_features=192, out_features=10)
         )
 
+    def get_predictions(self, y_hat):
+        return torch.argmax(F.softmax(y_hat, dim=1), dim=1)
 
     def forward(self, x):
         x = self.features(x)
@@ -79,21 +85,26 @@ class BaselineCNNModel(pl.LightningModule):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y)
-        tensorboard_logs = {'train_loss': loss}
-        return {'loss': loss, 'log': tensorboard_logs}
+        predictions = self.get_predictions(y_hat)
+        accuracy = compute_accuracy(predictions, y)
+        tensorboard_logs = {'train_loss': loss, 'train_accuracy': accuracy}
+        return {'loss': loss, 'log': tensorboard_logs, 'accuracy': accuracy}
 
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y)
-        return {'val_loss': loss}
+        predictions = self.get_predictions(y_hat)
+        accuracy = compute_accuracy(predictions, y)
+        return {'val_loss': loss, 'val_accuracy': accuracy}
 
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
-        tensorboard_logs = {'val_loss': avg_loss}
-        return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
+        avg_accuracy = torch.stack([x['val_accuracy'] for x in outputs]).mean()
+        tensorboard_logs = {'val_loss': avg_loss, 'val_accuracy': avg_accuracy}
+        return {'avg_val_loss': avg_loss, 'log': tensorboard_logs, 'avg_val_accuracy': avg_accuracy}
 
 
     def configure_optimizers(self):
@@ -128,8 +139,7 @@ def squash(x, axis=-1):
 
 def conv_out_size(in_size, kernel_sizes=[9, 9], paddings=[0, 0], strides=[1, 2]):
     h, w = in_size
-    print(h)
-    print(w)
+
     for i in range(len(kernel_sizes)):
         k = kernel_sizes[i]
         p = paddings[i]
