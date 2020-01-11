@@ -92,7 +92,8 @@ class BaselineCNNModel(pl.LightningModule):
         loss = F.cross_entropy(y_hat, y)
         predictions = get_predictions(y_hat)
         accuracy = compute_accuracy(predictions, y)
-        return {'val_loss': loss, 'val_acc': accuracy}
+        tensorboard_logs = {'val_loss': loss, 'val_accuracy': accuracy}
+        return {'val_loss': loss, 'val_acc': accuracy,'log':tensorboard_logs}
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
