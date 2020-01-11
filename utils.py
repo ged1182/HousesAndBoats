@@ -2,7 +2,8 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt
-
+import torch
+import torch.nn.functional as F
 import os
 
 def count_parameters(model):
@@ -56,3 +57,11 @@ def show_images(data_loader, classes, num_imgs=8):
         img = transforms.ToPILImage()(sample)
         ax.set_title(classes[target])
         ax.imshow(img)
+
+
+def get_predictions(y_hat):
+    return torch.argmax(F.softmax(y_hat, dim=1), dim=1)
+
+
+def compute_accuracy(predictions, targets):
+    return torch.mean((predictions == targets).double())
