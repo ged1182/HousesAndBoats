@@ -39,7 +39,7 @@ class BaselineCNNModel(LightningModule):
         self.num_workers = 4 if device == 'cpu' else 1
         self.in_channels, self.input_height, self.input_width = self.input_size
         self.h, self.w = self.input_height, self.input_width
-
+        self.nb_classes = 10
         self.features = nn.Sequential(
             nn.Conv2d(in_channels=self.in_channels, out_channels=256, kernel_size=(5, 5),
                       stride=1, padding=2),
@@ -142,12 +142,14 @@ class BaselineCNNModel(LightningModule):
                                       transform=transforms.ToTensor(),
                                       target_transform=None, download=True)
             self.input_size = [1, 28, 28]
+            self.nb_classes = 10
         elif self.hparams.dataset == "HB":
             self.train_dataset = ImageFolder(root='./data/HB/training',
                                              transform=transforms.ToTensor())
             self.testing_dataset = ImageFolder(root='./data/HB/testing',
                                                transform=transforms.ToTensor())
             self.input_size = [3, 64, 64]
+            self.nb_classes = 4
         else:
             self.train_dataset = None
             self.testing_dataset = None
