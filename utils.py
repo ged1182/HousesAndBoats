@@ -59,9 +59,19 @@ def show_images(data_loader, classes, num_imgs=8):
         ax.imshow(img)
 
 
+def squash_fn(tensor, dim=-1):
+    squared_norm = (tensor ** 2).sum(dim=dim, keepdim=True)
+    scale = squared_norm / (1 + squared_norm)
+    return scale * tensor / torch.sqrt(squared_norm)
+
 def get_predictions(y_hat):
-    return torch.argmax(F.softmax(y_hat, dim=1), dim=1)
+
+    predictions = torch.argmax(F.softmax(y_hat, dim=1), dim=1)
+
+
+    return predictions
 
 
 def compute_accuracy(predictions, targets):
+
     return torch.mean((predictions == targets).double())

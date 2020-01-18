@@ -137,18 +137,21 @@ class BaselineCNNModel(LightningModule):
         if self.hparams.dataset == "MNIST":
             self.train_dataset = MNIST(root='./data', train=True,
                                        transform=transforms.ToTensor(),
-                                       target_transform=None,download=True)
+                                       target_transform=None, download=True)
             self.testing_dataset = MNIST(root='./data', train=False,
                                       transform=transforms.ToTensor(),
                                       target_transform=None, download=True)
             self.input_size = [1, 28, 28]
             self.nb_classes = 10
         elif self.hparams.dataset == "HB":
+            t = transforms.Compose(
+                [transforms.Resize([28, 28]),
+                transforms.ToTensor()])
             self.train_dataset = ImageFolder(root='./data/HB/training',
-                                             transform=transforms.ToTensor())
+                                             transform=t)
             self.testing_dataset = ImageFolder(root='./data/HB/testing',
-                                               transform=transforms.ToTensor())
-            self.input_size = [3, 64, 64]
+                                               transform=t)
+            self.input_size = [3, 28, 28]
             self.nb_classes = 4
         else:
             self.train_dataset = None
@@ -229,18 +232,15 @@ def get_args():
 
 def main(hparams):
     model = BaselineCNNModel(hparams)
-    save_dir = './Logs/' + hparams.dataset
-    tt_logger = TestTubeLogger(save_dir=save_dir, name="BaselineCNNModel")
+    save_path = os.path.join('./Logs', hparams.dataset, "BaselineCNN")
+    # tt_logger = TestTubeLogger(save_dir=save_dir, name="BaselineCNNModel")
 
     if not(torch.cuda.is_available()):
 
-        trainer = Trainer(logger=tt_logger,
-                          overfit_pct=hparams.overfit_pct,
-                          )
+        trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path)
     else:
 
-        trainer = Trainer(logger=tt_logger,
-                          overfit_pct=hparams.overfit_pct,
+        trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
                           gpus=1)
     if hparams.evaluate:
         trainer.run_evaluation()
