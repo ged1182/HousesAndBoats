@@ -9,30 +9,6 @@ import os
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-
-def get_train_val_data(data_dir, verbose=False):
-    training_data = ImageFolder(root=os.path.join(data_dir, "training"), transform=transforms.ToTensor())
-    validation_data = ImageFolder(root=os.path.join(data_dir, "validation"), transform=transforms.ToTensor())
-    training_data
-    if verbose:
-        print(len(training_data.classes), "Classes:", training_data.classes)
-        print("Training Size: {0:d}".format((len(training_data))))
-        print("Validation Size: {0:d}".format((len(validation_data))))
-    return training_data, validation_data
-
-
-def get_test_data(data_dir, verbose=False):
-    testing_data = ImageFolder(root=os.path.join(data_dir, "testing"), transform=transforms.ToTensor())
-    if verbose:
-        print(len(testing_data.classes), "Classes:", testing_data.classes)
-        print("Testing Size: {0:d}".format((len(testing_data))))
-    return testing_data
-
-
-def get_loader(data, batch_size=16, shuffle=True, num_workers=4):
-    return DataLoader(data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
-
-
 def show_images(data_loader, classes, num_imgs=8):
     batch = next(iter(data_loader))
     samples, targets = batch
@@ -60,10 +36,14 @@ def show_images(data_loader, classes, num_imgs=8):
 
 
 def squash_fn(tensor, dim=-1):
+    if torch.sum(torch.isnan(tensor)).squeeze() > 0:
+        print('squash_fn input tensor contains nan')
     squared_norm = (tensor ** 2).sum(dim=dim, keepdim=True)
     scale = squared_norm / (1 + squared_norm)
-    return scale * tensor / torch.sqrt(squared_norm)
-
+    s = scale * tensor / torch.sqrt(1e-4 + squared_norm)
+    if torch.sum(torch.isnan(s)).squeeze() > 0:
+        print('squash_fn output tensor contains nan')
+    return s
 def get_predictions(y_hat):
 
     predictions = torch.argmax(F.softmax(y_hat, dim=1), dim=1)

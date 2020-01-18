@@ -34,6 +34,7 @@ class PrimaryCapsuleLayer(nn.Module):
     def forward(self, x):
         outputs = self.conv(x)
         outputs = outputs.view(x.size(0), -1, self.caps_dim)
+        
         outputs = squash_fn(outputs)
         return outputs
 
@@ -103,10 +104,14 @@ class MarginLoss(nn.Module):
         self.p = p
 
     def forward(self, norms, labels):
-        loss = torch.sum(torch.mul(torch.eye(self.nb_classes)[labels], (torch.mul(self.margin_pos-norms, norms<self.margin_pos))**2),dim=1)
+        eye = torch.eye(self.nb_classes, device=device)[labels]
+        mask = torch.tensor(norms < self.margin_pos, dtype=torch.float, device=device)
+        pos_minus = self.margin_pos - norms
+        loss =0.0
+        loss = torch.sum(torch.mul(eye, (torch.mul(self.margin_pos - norms, mask))**2),dim=1)
         loss += torch.sum(torch.mul
-                          (1-torch.eye(self.nb_classes)[labels],
-                           (torch.mul(norms-self.margin_neg, norms > self.margin_neg)) ** 2),
+                          (1-eye,
+                           (torch.mul(norms-self.margin_neg, 1-mask)) ** 2),
                           dim=1)
         loss = loss.mean().squeeze()
 
@@ -444,7 +449,7 @@ def main(hparams):
         trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path)
     else:
 
-        trainer = Trainer(overfit_pct=hparams.overfit_pct,
+        trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
                           gpus=1)
     if hparams.evaluate:
         trainer.run_evaluation()
