@@ -4,16 +4,14 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from utils import compute_accuracy, get_predictions
+from utils import compute_accuracy, get_predictions, count_parameters
 import numpy as np
 from torch.utils.data.sampler import SubsetRandomSampler
 from argparse import ArgumentParser
 from collections import OrderedDict
-import logging
 import os
 from torchvision.datasets import MNIST, ImageFolder
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.logging import TestTubeLogger
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -232,6 +230,7 @@ def get_args():
 
 def main(hparams):
     model = BaselineCNNModel(hparams)
+    print("Number Of Parameters:", count_parameters(model))
     save_path = os.path.join('./Logs', hparams.dataset, "BaselineCNN")
     # tt_logger = TestTubeLogger(save_dir=save_dir, name="BaselineCNNModel")
 

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from utils import compute_accuracy, get_predictions, squash_fn
+from utils import compute_accuracy, get_predictions, squash_fn, count_parameters
 import numpy as np
 from torch.utils.data.sampler import SubsetRandomSampler
 from argparse import ArgumentParser
@@ -15,7 +15,6 @@ import logging
 import os
 from torchvision.datasets import MNIST, ImageFolder
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.logging import TestTubeLogger
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -29,12 +28,10 @@ class PrimaryCapsuleLayer(nn.Module):
         self.conv = nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
                               kernel_size=kernel_size, stride=stride, padding=padding)
 
-
-
     def forward(self, x):
         outputs = self.conv(x)
         outputs = outputs.view(x.size(0), -1, self.caps_dim)
-        
+
         outputs = squash_fn(outputs)
         return outputs
 
@@ -47,7 +44,7 @@ class ShapeCaps(nn.Module):
         self.in_caps_dim = in_caps_dim
         self.out_caps_dim = out_caps_dim
         self.routing_iters = routing_iters
-        self.weightMatrices = torch.nn.Parameter(torch.randn(self.out_caps,
+        self.weightMatrices = torch.nn.Parameter(0.01*torch.randn(self.out_caps,
                                                              self.in_caps,
                                                              self.out_caps_dim,
                                                              self.in_caps_dim),
@@ -96,7 +93,7 @@ class ReconstructionLayers(nn.Module):
 
 
 class MarginLoss(nn.Module):
-    def __init__(self, nb_classes = 10, margin_pos=0.9, margin_neg = 0.1, p = 2):
+    def __init__(self, nb_classes=10, margin_pos=0.9, margin_neg=0.1, p=2):
         super(MarginLoss, self).__init__()
         self.nb_classes = nb_classes
         self.margin_pos = margin_pos
@@ -106,19 +103,18 @@ class MarginLoss(nn.Module):
     def forward(self, norms, labels):
         eye = torch.eye(self.nb_classes, device=device)[labels]
         mask = torch.tensor(norms < self.margin_pos, dtype=torch.float, device=device)
-        pos_minus = self.margin_pos - norms
-        loss =0.0
-        loss = torch.sum(torch.mul(eye, (torch.mul(self.margin_pos - norms, mask))**2),dim=1)
-        loss += torch.sum(torch.mul
-                          (1-eye,
-                           (torch.mul(norms-self.margin_neg, 1-mask)) ** 2),
-                          dim=1)
+        loss = 0.0
+        loss = torch.sum(torch.mul(eye, (torch.mul(self.margin_pos - norms, mask)) ** 2), dim=1)
+        loss += 0.5 * torch.sum(torch.mul
+                                (1 - eye,
+                                 (torch.mul(norms - self.margin_neg, 1 - mask)) ** 2),
+                                dim=1)
         loss = loss.mean().squeeze()
 
         return loss
 
 
-class CapsNet(pl.LightningModule):
+class CapsNet(LightningModule):
 
     def __init__(self, hparams):
 
@@ -131,8 +127,6 @@ class CapsNet(pl.LightningModule):
         self.train_batch_size = self.hparams.train_batch_size
         self.val_batch_size = self.hparams.val_batch_size
         self.test_batch_size = self.hparams.test_batch_size
-        np.random.seed(143)
-        # self.num_workers = 4 if device == 'cpu' else 1
         self.num_workers = 0
         self.in_channels, self.input_height, self.input_width = self.input_size
         self.h, self.w = self.input_height, self.input_width
@@ -180,11 +174,9 @@ class CapsNet(pl.LightningModule):
             if y.shape != [0]:
 
                 batch_size, _, caps_dim = shape_caps.shape
-                selected_capsules = torch.zeros([batch_size, 1, caps_dim])
+                selected_capsules = torch.zeros([batch_size, 1, caps_dim], device=device)
                 for e in np.arange(batch_size):
                     selected_capsules[e] = shape_caps[e, y[e]]
-
-
             else:
                 selected_capsules = shape_caps[:, predicted_classes]
 
@@ -212,6 +204,7 @@ class CapsNet(pl.LightningModule):
         return torch.sqrt((outputs ** 2).sum(dim=2))
 
     def training_step(self, batch, batch_idx):
+
         x, y = batch
         if self.reconstruction:
             outputs = self.forward(x, y)
@@ -233,6 +226,7 @@ class CapsNet(pl.LightningModule):
         return output
 
     def validation_step(self, batch, batch_idx):
+
         x, y = batch
         if self.reconstruction:
             outputs = self.forward(x, y)
@@ -311,10 +305,10 @@ class CapsNet(pl.LightningModule):
         if self.hparams.dataset == "MNIST":
             self.train_dataset = MNIST(root='./data', train=True,
                                        transform=transforms.ToTensor(),
-                                       target_transform=None,download=True)
+                                       target_transform=None, download=True)
             self.testing_dataset = MNIST(root='./data', train=False,
-                                      transform=transforms.ToTensor(),
-                                      target_transform=None, download=True)
+                                         transform=transforms.ToTensor(),
+                                         target_transform=None, download=True)
             self.input_size = [1, 28, 28]
             self.nb_classes = 10
         elif self.hparams.dataset == "HB":
@@ -332,7 +326,7 @@ class CapsNet(pl.LightningModule):
             self.train_dataset = None
             self.testing_dataset = None
 
-        if not(self.train_dataset == None):
+        if not (self.train_dataset == None):
             N = len(self.train_dataset)
             idx = np.arange(N)
             train_prop = self.hparams.train_prop
@@ -342,7 +336,6 @@ class CapsNet(pl.LightningModule):
             val_indices = indices[num_train:]
             self.train_sampler = SubsetRandomSampler(train_indices)
             self.val_sampler = SubsetRandomSampler(val_indices)
-
 
     @pl.data_loader
     def train_dataloader(self):
@@ -415,15 +408,12 @@ class CapsNet(pl.LightningModule):
         parser.add_argument('--routing_iters', default=3, type=int,
                             help="number of iterations for the routing algorithm (default: 3)",
                             dest='routing_iters')
-        # parser.add_argument('--loss', default='cross_entropy', type=str,
-        #                     help="type of loss (default: cross_entropy), choices: []\nIf reconstruction then this option is ignored",
-        #                     choices=['cross_entropy', 'margin'],
-        #                     dest='loss_fn')
         parser.add_argument('--reconstruction', default=False, type=bool,
                             help="whether to include reconstruction (default: False)",
                             dest='reconstruction')
 
         return parser
+
 
 def get_args():
     parent_parser = ArgumentParser(add_help=False)
@@ -434,27 +424,25 @@ def get_args():
     parser = CapsNet.add_model_specific_args(parent_parser)
     return parser.parse_args()
 
+
 def main(hparams):
     model = CapsNet(hparams)
+    print("Number Of Parameters:", count_parameters(model))
     save_path = os.path.join('./Logs', hparams.dataset, "CapsNet")
-    print(save_path)
-    # checkpoint_path = os.path.join(save_dir, "checkpoint")
-    # print(checkpoint_path)
-    # tt_logger = TestTubeLogger(save_dir=save_dir, name="CapsNet2")
-    # tt_logger = TestTubeLogger(name="CapsNet")
-    # print('tt_logger.version', tt_logger.version)
-    # checkpoint_callback = pl.callbacks.ModelCheckpoint(filepath=checkpoint_path)
-    if not(torch.cuda.is_available()):
+    if not (torch.cuda.is_available()):
 
-        trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path)
+        trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
+                          min_nb_epochs=10, max_nb_epochs=100)
     else:
 
         trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
-                          gpus=1)
+                          gpus=1,
+                          min_nb_epochs=10, max_nb_epochs=100)
     if hparams.evaluate:
         trainer.run_evaluation()
     else:
         trainer.fit(model)
+
 
 if __name__ == '__main__':
     hparams = get_args()

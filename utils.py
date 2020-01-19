@@ -39,15 +39,18 @@ def squash_fn(tensor, dim=-1):
     if torch.sum(torch.isnan(tensor)).squeeze() > 0:
         print('squash_fn input tensor contains nan')
     squared_norm = (tensor ** 2).sum(dim=dim, keepdim=True)
-    scale = squared_norm / (1 + squared_norm)
-    s = scale * tensor / torch.sqrt(1e-4 + squared_norm)
+    scale = squared_norm / (1.0 + squared_norm)
+    norm = torch.sqrt(squared_norm + 1e-7)
+    unit_vector = tensor / norm
+    s = scale * unit_vector
     if torch.sum(torch.isnan(s)).squeeze() > 0:
         print('squash_fn output tensor contains nan')
     return s
+
+
 def get_predictions(y_hat):
 
     predictions = torch.argmax(F.softmax(y_hat, dim=1), dim=1)
-
 
     return predictions
 
