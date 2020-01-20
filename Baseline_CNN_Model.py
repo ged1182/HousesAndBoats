@@ -4,14 +4,16 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from utils import compute_accuracy, get_predictions, count_parameters
+from utils import compute_accuracy, get_predictions
 import numpy as np
 from torch.utils.data.sampler import SubsetRandomSampler
 from argparse import ArgumentParser
 from collections import OrderedDict
+import logging
 import os
 from torchvision.datasets import MNIST, ImageFolder
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.logging import TestTubeLogger
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -133,11 +135,15 @@ class BaselineCNNModel(LightningModule):
 
     def get_datasets(self):
         if self.hparams.dataset == "MNIST":
+            t = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,))
+            ])
             self.train_dataset = MNIST(root='./data', train=True,
-                                       transform=transforms.ToTensor(),
+                                       transform=t,
                                        target_transform=None, download=True)
-            self.testing_dataset = MNIST(root='./data', train=False,
-                                      transform=transforms.ToTensor(),
+            self.val_dataset = MNIST(root='./data', train=False,
+                                      transform=t,
                                       target_transform=None, download=True)
             self.input_size = [1, 28, 28]
             self.nb_classes = 10
@@ -147,44 +153,47 @@ class BaselineCNNModel(LightningModule):
                 transforms.ToTensor()])
             self.train_dataset = ImageFolder(root='./data/HB/training',
                                              transform=t)
-            self.testing_dataset = ImageFolder(root='./data/HB/testing',
+            self.val_dataset = ImageFolder(root='./data/HB/testing',
                                                transform=t)
             self.input_size = [3, 28, 28]
             self.nb_classes = 4
         else:
             self.train_dataset = None
-            self.testing_dataset = None
+            self.val_dataset = None
 
-        if not(self.train_dataset == None):
-            N = len(self.train_dataset)
-            idx = np.arange(N)
-            train_prop = self.hparams.train_prop
-            indices = np.random.permutation(idx)
-            num_train = int(np.floor(train_prop * N))
-            train_indices = indices[0:num_train]
-            val_indices = indices[num_train:]
-            self.train_sampler = SubsetRandomSampler(train_indices)
-            self.val_sampler = SubsetRandomSampler(val_indices)
+#         if not(self.train_dataset == None):
+#             N = len(self.train_dataset)
+#             idx = np.arange(N)
+#             train_prop = self.hparams.train_prop
+#             indices = np.random.permutation(idx)
+#             num_train = int(np.floor(train_prop * N))
+#             train_indices = indices[0:num_train]
+#             val_indices = indices[num_train:]
+#             self.train_sampler = SubsetRandomSampler(train_indices)
+#             self.val_sampler = SubsetRandomSampler(val_indices)
 
 
     @pl.data_loader
     def train_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size,
-                          sampler=self.train_sampler,
-                          num_workers=self.num_workers)
+#         return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size,
+#                           sampler=self.train_sampler,
+#                           num_workers=self.num_workers)
+        return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size)
+
 
     @pl.data_loader
     def val_dataloader(self):
         # OPTIONAL
-        return DataLoader(dataset=self.train_dataset, batch_size=self.val_batch_size,
-                          sampler=self.val_sampler,
-                          num_workers=self.num_workers)
+#         return DataLoader(dataset=self.train_dataset, batch_size=self.val_batch_size,
+#                           sampler=self.val_sampler,
+#                           num_workers=self.num_workers)
+        return DataLoader(dataset=self.val_dataset, batch_size=self.val_batch_size)
 
-    @pl.data_loader
-    def test_dataloader(self):
-        # OPTIONAL
-        return DataLoader(dataset=self.testing_dataset, batch_size=self.test_batch_size,
-                          num_workers=self.num_workers)
+#     @pl.data_loader
+#     def test_dataloader(self):
+#         # OPTIONAL
+#         return DataLoader(dataset=self.testing_dataset, batch_size=self.test_batch_size,
+#                           num_workers=self.num_workers)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -192,28 +201,17 @@ class BaselineCNNModel(LightningModule):
         parser.add_argument('--epochs', default=10, type=int,
                             help="the max number of epochs (default: 10)",
                             metavar="max_nb_epochs")
-        parser.add_argument('--train_b', default=32, type=int,
+        parser.add_argument('--train_batch_size', default=128, type=int,
                             help="batch_size used for training (default: 32)",
                             metavar="train_batch_size",
                             dest="train_batch_size")
-        parser.add_argument('--val_b', default=64, type=int,
+        parser.add_argument('--val_batch_size', default=128, type=int,
                             help="batch_size used during validation (default: 64)",
                             metavar="val_batch_size",
                             dest="val_batch_size")
-        parser.add_argument('--test_b', default=64, type=int,
-                            help="batch_size used during testing (default: 64)",
-                            metavar="test_batch_size",
-                            dest="test_batch_size")
-        parser.add_argument('--lr', default=1e-3, type=float,
-                            help="initial learning rate (default: 1e-3)",
+        parser.add_argument('--lr', default=1e-5, type=float,
+                            help="initial learning rate (default: 1e-5)",
                             metavar='lr')
-        parser.add_argument('--train_prop', default=0.9, type=float,
-                            help="the proportion of the data to use for training (default: 0.9)",
-                            metavar='train_prop')
-        parser.add_argument('--eval', default=False, type=bool,
-                            help="whether or not to evaluate the model (default: False)",
-                            metavar='evaluate',
-                            dest='evaluate')
         parser.add_argument('--overfit_pct', default=0.0, type=float,
                             help="the proportion of the data to use to overfit (default=0.0)\nuse this to see if things are working",
                             dest='overfit_pct')
@@ -230,7 +228,6 @@ def get_args():
 
 def main(hparams):
     model = BaselineCNNModel(hparams)
-    print("Number Of Parameters:", count_parameters(model))
     save_path = os.path.join('./Logs', hparams.dataset, "BaselineCNN")
     # tt_logger = TestTubeLogger(save_dir=save_dir, name="BaselineCNNModel")
 
@@ -240,7 +237,7 @@ def main(hparams):
     else:
 
         trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
-                          gpus=1)
+                          gpus=1, min_nb_epochs=50, max_nb_epochs=100)
     if hparams.evaluate:
         trainer.run_evaluation()
     else:

@@ -15,6 +15,7 @@ import logging
 import os
 from torchvision.datasets import MNIST, ImageFolder
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.logging import TestTubeLogger
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -44,7 +45,7 @@ class ShapeCaps(nn.Module):
         self.in_caps_dim = in_caps_dim
         self.out_caps_dim = out_caps_dim
         self.routing_iters = routing_iters
-        self.weightMatrices = torch.nn.Parameter(0.01*torch.randn(self.out_caps,
+        self.weightMatrices = torch.nn.Parameter(torch.randn(self.out_caps,
                                                              self.in_caps,
                                                              self.out_caps_dim,
                                                              self.in_caps_dim),
@@ -103,18 +104,19 @@ class MarginLoss(nn.Module):
     def forward(self, norms, labels):
         eye = torch.eye(self.nb_classes, device=device)[labels]
         mask = torch.tensor(norms < self.margin_pos, dtype=torch.float, device=device)
+        pos_minus = self.margin_pos - norms
         loss = 0.0
         loss = torch.sum(torch.mul(eye, (torch.mul(self.margin_pos - norms, mask)) ** 2), dim=1)
         loss += 0.5 * torch.sum(torch.mul
                                 (1 - eye,
                                  (torch.mul(norms - self.margin_neg, 1 - mask)) ** 2),
                                 dim=1)
-        loss = loss.mean().squeeze()
+        loss = loss.sum().squeeze()
 
         return loss
 
 
-class CapsNet(LightningModule):
+class CapsNet(pl.LightningModule):
 
     def __init__(self, hparams):
 
@@ -123,11 +125,11 @@ class CapsNet(LightningModule):
         self.reconstruction = hparams.reconstruction
         self.train_dataset = None
         self.testing_dataset = None
-        self.get_datasets()
         self.train_batch_size = self.hparams.train_batch_size
         self.val_batch_size = self.hparams.val_batch_size
-        self.test_batch_size = self.hparams.test_batch_size
-        self.num_workers = 0
+
+        self.get_datasets()
+
         self.in_channels, self.input_height, self.input_width = self.input_size
         self.h, self.w = self.input_height, self.input_width
         self.nb_classes = 10
@@ -201,10 +203,9 @@ class CapsNet(LightningModule):
         return loss_dict
 
     def l2_norm(self, outputs):
-        return torch.sqrt((outputs ** 2).sum(dim=2))
+        return torch.sqrt(1e-7 + (outputs ** 2).sum(dim=2))
 
     def training_step(self, batch, batch_idx):
-
         x, y = batch
         if self.reconstruction:
             outputs = self.forward(x, y)
@@ -226,7 +227,6 @@ class CapsNet(LightningModule):
         return output
 
     def validation_step(self, batch, batch_idx):
-
         x, y = batch
         if self.reconstruction:
             outputs = self.forward(x, y)
@@ -262,99 +262,104 @@ class CapsNet(LightningModule):
             output['val_mse_loss'] = avg_mse_loss
         return output
 
-    def test_step(self, batch):
-        x, y = batch
-        if self.reconstruction:
-            outputs = self.forward(x, y)
-        else:
-            outputs = self.forward(x)
-        losses = self.compute_loss(x, y, outputs)
-        total_loss = losses['total_loss']
-        predictions = outputs['predicted_classes']
-        accuracy = compute_accuracy(predictions, y)
-        output = OrderedDict({
-            'test_loss': total_loss,
-            'test_acc': accuracy,
-            'test_margin_loss': losses['margin_loss']
-        })
-        if 'mse_loss' in losses:
-            output['test_mse_loss'] = losses['mse_loss']
-        return output
+    #     def test_step(self, batch):
+    #         x, y = batch
+    #         if self.reconstruction:
+    #             outputs = self.forward(x, y)
+    #         else:
+    #             outputs = self.forward(x)
+    #         losses = self.compute_loss(x, y, outputs)
+    #         total_loss = losses['total_loss']
+    #         predictions = outputs['predicted_classes']
+    #         accuracy = compute_accuracy(predictions, y)
+    #         output = OrderedDict({
+    #             'test_loss': total_loss,
+    #             'test_acc': accuracy,
+    #             'test_margin_loss': losses['margin_loss']
+    #         })
+    #         if 'mse_loss' in losses:
+    #             output['test_mse_loss'] = losses['mse_loss']
+    #         return output
 
-    def test_end(self, outputs):
-        avg_loss = torch.stack([x['test_loss'] for x in outputs]).mean()
-        avg_accuracy = torch.stack([x['test_acc'] for x in outputs]).mean()
-        avg_margin_loss = torch.stack([x['test_margin_loss'] for x in outputs]).mean()
-        tqdm_dict = {'test_loss': avg_loss, 'test_acc': avg_accuracy}
-        output = OrderedDict({
-            'progress_bar': tqdm_dict,
-            'log': tqdm_dict,
-            'test_loss': avg_loss,
-            'test_acc': avg_accuracy,
-            'test_margin_loss': avg_margin_loss
-        })
-        if 'test_mse_loss' in outputs[0]:
-            avg_mse_loss = torch.stack([x['test_mse_loss'] for x in outputs]).mean()
-            output['test_mse_loss'] = avg_mse_loss
-        return output
+    #     def test_end(self, outputs):
+    #         avg_loss = torch.stack([x['test_loss'] for x in outputs]).mean()
+    #         avg_accuracy = torch.stack([x['test_acc'] for x in outputs]).mean()
+    #         avg_margin_loss = torch.stack([x['test_margin_loss'] for x in outputs]).mean()
+    #         tqdm_dict = {'test_loss': avg_loss, 'test_acc': avg_accuracy}
+    #         output = OrderedDict({
+    #             'progress_bar': tqdm_dict,
+    #             'log': tqdm_dict,
+    #             'test_loss': avg_loss,
+    #             'test_acc': avg_accuracy,
+    #             'test_margin_loss': avg_margin_loss
+    #         })
+    #         if 'test_mse_loss' in outputs[0]:
+    #             avg_mse_loss = torch.stack([x['test_mse_loss'] for x in outputs]).mean()
+    #             output['test_mse_loss'] = avg_mse_loss
+    #         return output
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
 
     def get_datasets(self):
         if self.hparams.dataset == "MNIST":
+            t = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,))
+            ])
             self.train_dataset = MNIST(root='./data', train=True,
-                                       transform=transforms.ToTensor(),
+                                       transform=t,
                                        target_transform=None, download=True)
-            self.testing_dataset = MNIST(root='./data', train=False,
-                                         transform=transforms.ToTensor(),
-                                         target_transform=None, download=True)
+            self.val_dataset = MNIST(root='./data', train=False,
+                                     transform=t,
+                                     target_transform=None, download=True)
             self.input_size = [1, 28, 28]
             self.nb_classes = 10
         elif self.hparams.dataset == "HB":
-            t = transforms.Compose([
-                transforms.Resize([28, 28]),
-                transforms.ToTensor()])
+            t = transforms.Compose(
+                [transforms.Resize([28, 28]),
+                 transforms.ToTensor()])
             self.train_dataset = ImageFolder(root='./data/HB/training',
                                              transform=t)
-            self.testing_dataset = ImageFolder(root='./data/HB/testing',
-                                               transform=t)
+            self.val_dataset = ImageFolder(root='./data/HB/testing',
+                                           transform=t)
             self.input_size = [3, 28, 28]
-            self.nb_classes = 4
             self.nb_classes = 4
         else:
             self.train_dataset = None
-            self.testing_dataset = None
+            self.val_dataset = None
 
-        if not (self.train_dataset == None):
-            N = len(self.train_dataset)
-            idx = np.arange(N)
-            train_prop = self.hparams.train_prop
-            indices = np.random.permutation(idx)
-            num_train = int(np.floor(train_prop * N))
-            train_indices = indices[0:num_train]
-            val_indices = indices[num_train:]
-            self.train_sampler = SubsetRandomSampler(train_indices)
-            self.val_sampler = SubsetRandomSampler(val_indices)
+    #         if not(self.train_dataset == None):
+    #             N = len(self.train_dataset)
+    #             idx = np.arange(N)
+    #             train_prop = self.hparams.train_prop
+    #             indices = np.random.permutation(idx)
+    #             num_train = int(np.floor(train_prop * N))
+    #             train_indices = indices[0:num_train]
+    #             val_indices = indices[num_train:]
+    #             self.train_sampler = SubsetRandomSampler(train_indices)
+    #             self.val_sampler = SubsetRandomSampler(val_indices)
 
     @pl.data_loader
     def train_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size,
-                          sampler=self.train_sampler,
-                          num_workers=self.num_workers)
+        #         return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size,
+        #                           sampler=self.train_sampler,
+        #                           num_workers=self.num_workers)
+        return DataLoader(dataset=self.train_dataset, batch_size=self.train_batch_size)
 
     @pl.data_loader
     def val_dataloader(self):
         # OPTIONAL
-        return DataLoader(dataset=self.train_dataset, batch_size=self.val_batch_size,
-                          sampler=self.val_sampler,
-                          num_workers=self.num_workers)
+        #         return DataLoader(dataset=self.train_dataset, batch_size=self.val_batch_size,
+        #                           sampler=self.val_sampler,
+        #                           num_workers=self.num_workers)
+        return DataLoader(dataset=self.val_dataset, batch_size=self.val_batch_size)
 
-    @pl.data_loader
-    def test_dataloader(self):
-        # OPTIONAL
-        return DataLoader(dataset=self.testing_dataset, batch_size=self.test_batch_size,
-                          num_workers=self.num_workers)
+    #     @pl.data_loader
+    #     def test_dataloader(self):
+    #         # OPTIONAL
+    #         return DataLoader(dataset=self.testing_dataset, batch_size=self.test_batch_size,
+    #                           num_workers=self.num_workers)
 
     @staticmethod
     def conv_out_size(in_size, kernel_sizes=[9, 9], paddings=[0, 0], strides=[1, 2]):
@@ -374,28 +379,17 @@ class CapsNet(LightningModule):
         parser.add_argument('--epochs', default=10, type=int,
                             help="the max number of epochs (default: 10)",
                             metavar="max_nb_epochs")
-        parser.add_argument('--train_b', default=32, type=int,
-                            help="batch_size used for training (default: 32)",
+        parser.add_argument('--train_batch_size', default=128, type=int,
+                            help="batch_size used for training (default: 128)",
                             metavar="train_batch_size",
                             dest="train_batch_size")
-        parser.add_argument('--val_b', default=64, type=int,
-                            help="batch_size used during validation (default: 64)",
+        parser.add_argument('--val_batch_size', default=128, type=int,
+                            help="batch_size used during validation (default: 128)",
                             metavar="val_batch_size",
                             dest="val_batch_size")
-        parser.add_argument('--test_b', default=64, type=int,
-                            help="batch_size used during testing (default: 64)",
-                            metavar="test_batch_size",
-                            dest="test_batch_size")
-        parser.add_argument('--lr', default=1e-4, type=float,
-                            help="initial learning rate (default: 1e-4)",
+        parser.add_argument('--lr', default=2e-5, type=float,
+                            help="initial learning rate (default: 2e-5)",
                             metavar='lr')
-        parser.add_argument('--train_prop', default=0.9, type=float,
-                            help="the proportion of the data to use for training (default: 0.9)",
-                            metavar='train_prop')
-        parser.add_argument('--eval', default=False, type=bool,
-                            help="whether or not to evaluate the model (default: False)",
-                            metavar='evaluate',
-                            dest='evaluate')
         parser.add_argument('--overfit_pct', default=0.0, type=float,
                             help="the proportion of the data to use to overfit (default=0.0)\nuse this to see if things are working",
                             dest='overfit_pct')
@@ -405,8 +399,8 @@ class CapsNet(LightningModule):
         parser.add_argument('--out_caps_dim', default=16, type=int,
                             help="the dimension of the output capsules (default: 16)",
                             dest='out_caps_dim')
-        parser.add_argument('--routing_iters', default=3, type=int,
-                            help="number of iterations for the routing algorithm (default: 3)",
+        parser.add_argument('--routing_iters', default=1, type=int,
+                            help="number of iterations for the routing algorithm (default: 1)",
                             dest='routing_iters')
         parser.add_argument('--reconstruction', default=False, type=bool,
                             help="whether to include reconstruction (default: False)",
@@ -427,8 +421,10 @@ def get_args():
 
 def main(hparams):
     model = CapsNet(hparams)
-    print("Number Of Parameters:", count_parameters(model))
+    print(count_parameters(model))
     save_path = os.path.join('./Logs', hparams.dataset, "CapsNet")
+    print(save_path)
+
     if not (torch.cuda.is_available()):
 
         trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
@@ -437,11 +433,12 @@ def main(hparams):
 
         trainer = Trainer(overfit_pct=hparams.overfit_pct, default_save_path=save_path,
                           gpus=1,
-                          min_nb_epochs=10, max_nb_epochs=100)
-    if hparams.evaluate:
-        trainer.run_evaluation()
-    else:
-        trainer.fit(model)
+                          min_nb_epochs=50, max_nb_epochs=100)
+    #     if hparams.evaluate:
+    #         trainer.run_evaluation()
+    #     else:
+    #         trainer.fit(model)
+    trainer.fit(model)
 
 
 if __name__ == '__main__':
