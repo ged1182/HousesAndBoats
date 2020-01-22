@@ -1,5 +1,5 @@
 import torch.cuda as cuda
-from torch.nn import Conv2d, ReLU, Parameter, Sequential, Linear, Sigmoid
+from torch.nn import Conv2d, ReLU, Parameter, Sequential, Linear, Sigmoid, ModuleList
 from torch import stack, transpose, sum, sqrt, randn, matmul, zeros_like, tensor, argmax, mean
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -109,7 +109,7 @@ class MarginLoss(Module):
         :param labels: [batch_size, ] the labels for image from the batch
         :return: (float) the mean of the losses from all the batches
         """
-        t_k = one_hot(labels, num_classes=self.nb_classes)  # [batch_size, nb_classes]
+        t_k = one_hot(labels, num_classes=self.nb_classes).float()  # [batch_size, nb_classes]
         loss = t_k * self.relu(self.m_plus - probs) ** 2 + self.lmbda * (1.0 - t_k) * self.relu(
             probs - self.m_minus) ** 2
         loss = mean(loss)
@@ -174,11 +174,9 @@ class PrimaryCaps(Module):
         self.padding = padding
         self.nb_capsule_blocks = nb_capsule_blocks
 
-        self.capsule_blocks = [Conv2d(in_channels=self.in_channels,
-                                      out_channels=self.caps_dim,
-                                      kernel_size=self.kernel_size,
-                                      stride=self.stride,
-                                      padding=self.padding) for _ in np.arange(self.nb_capsule_blocks)]
+        self.capsule_blocks = ModuleList([Conv2d(in_channels=self.in_channels, out_channels=self.caps_dim,
+                                                 kernel_size=self.kernel_size, stride=self.stride,
+                                                 padding=self.padding) for _ in np.arange(self.nb_capsule_blocks)])
 
         self.relu = ReLU(inplace=True)
         self.squash = Squash()
@@ -246,6 +244,7 @@ class ClassCaps(Module):
         u_hat = transpose(u_hat, 2, 1)  # [batch_size, nb_capsules_in, nb_classes, caps_dim_out]
         b_ij = zeros_like(u_hat)
         u_no_grad = u_hat.clone().detach()
+        v_j = zeros_like(u_hat)
 
         for i in np.arange(self.routing_iters):
             c_i = softmax(b_ij, dim=-2)  # [batch_size, nb_capsules_in, nb_classes, caps_dim_out]
@@ -314,10 +313,13 @@ class CapsNet(LightningModule):
     This is the main model which optionally includes a decoder.
     """
 
-    def __init__(self, nb_classes, train_batch_size, val_batch_size, reconstruction=True, lr=1e-3):
+    def __init__(self, nb_classes=10, train_batch_size=128, val_batch_size=128, reconstruction=False, lr=1e-3):
         """
-        Initialize and build the CapsNet model.
-        :param hparams: the hyperparameters of the model
+        :param nb_classes:
+        :param train_batch_size:
+        :param val_batch_size:
+        :param reconstruction:
+        :param lr:
         """
         super(CapsNet, self).__init__()
         # self.hparams = hparams
@@ -328,9 +330,12 @@ class CapsNet(LightningModule):
         self.reconstruction = reconstruction
         self.lr = lr
         self.input_size = [1, 28, 28]
-        self.conv = Conv2d(self.input_size[0], out_channels=256, kernel_size=9)
 
-        self.encoder = Sequential(self.conv, PrimaryCaps(), ClassCaps())
+        self.encoder = Sequential(
+            Conv2d(self.input_size[0], out_channels=256, kernel_size=9),
+            PrimaryCaps(),
+            ClassCaps())
+
         self.decoder = None
         self.margin_loss = MarginLoss(nb_classes=self.nb_classes)
         self.mse_loss = MSELoss(reduction='mean')
@@ -355,9 +360,9 @@ class CapsNet(LightningModule):
         })
         if self.reconstruction:
             if labels.shape[0] > 0:
-                mask = one_hot(labels, num_classes=self.nb_classes)  # [batch_size, nb_classes]
+                mask = one_hot(labels, num_classes=self.nb_classes).float()  # [batch_size, nb_classes]
             else:
-                mask = one_hot(predictions, num_classes=self.nb_classes)  # [batch_size, nb_classes]
+                mask = one_hot(predictions, num_classes=self.nb_classes).float()  # [batch_size, nb_classes]
 
             mask = mask[:, :, None].expand_as(class_caps)
             caps_to_decode = sum(class_caps * mask, dim=1)  # [batch_size, caps_dim]
@@ -425,10 +430,10 @@ class CapsNet(LightningModule):
 
     def validation_step(self, batch, batch_nb):
         """
-        Compute the loss and other metrics for a batch
+        Compute the validation loss and other metrics for a batch
 
         :param batch: a batch containing images, labels
-        :param batch_idx: the number of the batch within the epoch
+        :param batch_nb: the number of the batch within the epoch
         :return: OrderedDict object containing the loss and other metrics from the batch
         """
 
