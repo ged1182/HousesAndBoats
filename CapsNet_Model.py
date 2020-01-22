@@ -246,6 +246,7 @@ class CapsNet(pl.LightningModule):
         return output
 
     def validation_end(self, outputs):
+
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         avg_accuracy = torch.stack([x['val_acc'] for x in outputs]).mean()
         avg_margin_loss = torch.stack([x['val_margin_loss'] for x in outputs]).mean()
