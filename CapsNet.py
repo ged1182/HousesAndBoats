@@ -1,7 +1,7 @@
 import torch.cuda as cuda
 from torch.nn import Conv2d, ReLU, Parameter, Sequential, Linear, Sigmoid, ModuleList
 from torch import stack, transpose, sum, sqrt, randn, matmul, zeros_like, tensor, argmax, mean
-from torch.optim import Adam
+from torch.optim import Adam, lr_scheduler
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Normalize, ToTensor
 from torchvision.datasets import MNIST
@@ -227,7 +227,7 @@ class ClassCaps(Module):
         self.caps_dim_out = caps_dim_out
         self.routing_iters = routing_iters
 
-        self.w_ij = Parameter(randn([1, nb_classes, nb_caps_in, caps_dim_in, caps_dim_out]), requires_grad=True)
+        self.w_ij = Parameter(0.05*randn([1, nb_classes, nb_caps_in, caps_dim_in, caps_dim_out]), requires_grad=True)
         self.squash = Squash()
 
     def forward(self, caps_in):
@@ -517,4 +517,6 @@ class CapsNet(LightningModule):
 
         :return: Adam optimizer with lr=self.lr
         """
-        return Adam(self.parameters(), lr=self.lr)
+        optimizer = Adam(self.parameters(), lr=self.lr)
+        lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=15, min_lr=1e-6)
+        return [optimizer], [lr_scheduler]
