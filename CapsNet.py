@@ -3,7 +3,7 @@ from torch.nn import Conv2d, ReLU, Parameter, Sequential, Linear, Sigmoid, Modul
 from torch import stack, transpose, sum, sqrt, randn, matmul, zeros_like, tensor, argmax, mean
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, Normalize, ToTensor, Grayscale
+from torchvision.transforms import Compose, Normalize, ToTensor, Grayscale, Resize
 from torchvision.datasets import MNIST, ImageFolder
 import numpy as np
 import pytorch_lightning as pl
@@ -248,7 +248,7 @@ class ClassCaps(Module):
         """
 
         u_hat = matmul(caps_in[:, None, :, None, :], self.w_ij)  # [batch_size, nb_classes, nb_caps_in, 1, caps_dim_out]
-        u_hat = u_hat.squeeze()  # [batch_size, nb_classes, nb_caps_in, caps_dim_out]
+        u_hat = u_hat.squeeze(3)  # [batch_size, nb_classes, nb_caps_in, caps_dim_out]
         u_hat = transpose(u_hat, 2, 1)  # [batch_size, nb_capsules_in, nb_classes, caps_dim_out]
         b_ij = zeros_like(u_hat)
         u_no_grad = u_hat.clone().detach()
@@ -268,7 +268,7 @@ class ClassCaps(Module):
             if i < self.routing_iters - 1:
                 b_ij += sum(u_no_grad * v_j, dim=-1, keepdim=True)
 
-        return v_j.squeeze()
+        return v_j.squeeze(1)
 
 
 class Decoder(Module):
@@ -276,31 +276,26 @@ class Decoder(Module):
     The Decoder reconstructs the input image from the ClassCaps.
     """
 
-    def __init__(self, in_features=16, fc_1=512, fc_2=1024, out_features=784):
+    def __init__(self, nb_classes=10, class_caps_dim=16, fc_1=512, fc_2=1024, out_features=784):
         """
         Initializes the Decoder Module
-
-        :param in_features: (int) this is the dimension of the ClassCaps (default: 16)
+        :param: nb_classes: (int) this is the number of classes
+        :param class_caps_dim: (int) this is the dimension of the ClassCaps (default: 16)
         :param fc_1: (int) the number of nodes in the first fully-connected layer (default: 512)
         :param fc_2: (int) the number of nodes in the second fully-connected layer (default: 1024)
         :param out_features: the number of nodes in the output layer (default: 784)
         """
         super(Decoder, self).__init__()
 
-        self.in_features = in_features
-        self.fc_1 = fc_1
-        self.fc_2 = fc_2
-        self.out_features = out_features
-
         self.layers = Sequential(
-            Linear(in_features=self.in_features,
-                   out_features=self.fc_1),
+            Linear(in_features=nb_classes*class_caps_dim,
+                   out_features=fc_1),
             ReLU(inplace=True),
-            Linear(in_features=self.fc_1,
-                   out_features=self.fc_2),
+            Linear(in_features=fc_1,
+                   out_features=fc_2),
             ReLU(inplace=True),
             Linear(in_features=fc_2,
-                   out_features=self.out_features),
+                   out_features=out_features),
             Sigmoid()
         )
 
@@ -364,12 +359,13 @@ class CapsNet(LightningModule):
         self.margin_loss = MarginLoss(nb_classes=self.nb_classes)
         self.mse_loss = MSELoss(reduction='mean')
 
-        if hparams.reconstruction:
+        if self.hparams.reconstruction:
             out_features = int(np.prod(self.input_size))
-            decoder_layer = Decoder(in_features=hparams.class_caps_dim,
-                                    fc_1=self.hparams.fc1,
-                                    fc_2=self.hparams.fc2,
-                                    out_features=np.prod(self.input_size))
+            decoder_layer = Decoder(nb_caps_in=self.nb_classes,
+                                    class_caps_dim=hparams.class_caps_dim,
+                                    fc_1=hparams.fc1,
+                                    fc_2=hparams.fc2,
+                                    out_features=out_features)
             self.decoder = decoder_layer
 
     def forward(self, images, labels=tensor([])):
@@ -395,8 +391,8 @@ class CapsNet(LightningModule):
                 mask = one_hot(predictions, num_classes=self.nb_classes).float()  # [batch_size, nb_classes]
 
             mask = mask[:, :, None].expand_as(class_caps)
-            caps_to_decode = sum(class_caps * mask, dim=1)  # [batch_size, caps_dim]
-
+            caps_to_decode = class_caps * mask  # [batch_size, caps_dim]
+            caps_to_decode = caps_to_decode.view(images.shape[0],-1)
             reconstructions = self.decoder(caps_to_decode)
             output.update({'reconstructions': reconstructions})
             output.move_to_end('reconstructions', last=True)
@@ -557,15 +553,16 @@ class CapsNet(LightningModule):
                                 download=True)
         else:
             if dataset_name == "HB":
-                transform = Compose([Grayscale(), ToTensor()])
+                transform = Compose([Grayscale(), Resize([28, 28]), ToTensor()])
             else:
-                transform = ToTensor()
+                transform = Compose([Resize([28, 28]), ToTensor()])
             train_dataset = ImageFolder(root=os.path.join(DATA_FOLDER, dataset_name, "training"), transform=transform)
             val_dataset = ImageFolder(root=os.path.join(DATA_FOLDER, dataset_name, "validation"), transform=transform)
 
         print(f"Dataset: {dataset_name}")
         print(f"Training Examples: {'{: ,}'.format(len(train_dataset))}")
         print(f"Validation Examples: {'{: ,}'.format(len(val_dataset))}")
+        print(f"Input Size: {train_dataset[0][0].shape}")
 
         return train_dataset, val_dataset
 

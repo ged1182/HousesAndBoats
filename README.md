@@ -34,11 +34,12 @@ We introduce two datasets "Houses and Boats" ('./data/HB') and "Houses and Boats
 ('./data/HB_Colored'). The goal of these this project, via these datasets, is to understand how
 capsule networks learn the instantiating parameters of the objects detected in the input image.
 
-![HB Examples](./Images/HB_Examples.png)
-*Examples from the HB Dataset*
+<img src="./Images/HB_Examples.png" alt="HB Examples" width="400"/>
 
-![HB Colored Examples](./Images/HB_Colored_Examples.png)
-*Examples from the HB_Colored Dataset*
+<br />
+
+<img src="./Images/HB_Colored_Examples.png  " alt="HB Colored Examples" width="400"/>
+
 
 ### Goals:
     
