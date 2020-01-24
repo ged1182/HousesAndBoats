@@ -362,7 +362,7 @@ class CapsNet(LightningModule):
 
         self.decoder = None
         self.margin_loss = MarginLoss(nb_classes=self.nb_classes)
-        self.mse_loss = MSELoss(reduction='sum')
+        self.mse_loss = MSELoss(reduction='mean')
 
         if hparams.reconstruction:
             out_features = int(np.prod(self.input_size))
