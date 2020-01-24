@@ -366,7 +366,10 @@ class CapsNet(LightningModule):
 
         if hparams.reconstruction:
             out_features = int(np.prod(self.input_size))
-            decoder_layer = Decoder(in_features=hparams.class_caps_dim, out_features=np.prod(self.input_size))
+            decoder_layer = Decoder(in_features=hparams.class_caps_dim,
+                                    fc_1=self.hparams.fc1,
+                                    fc_2=self.hparams.fc2,
+                                    out_features=np.prod(self.input_size))
             self.decoder = decoder_layer
 
     def forward(self, images, labels=tensor([])):
@@ -616,6 +619,13 @@ class CapsNet(LightningModule):
         parser.add_argument('--resume_from_ckpt', default="", type=str,
                             help="the path of a checkpoint to resume training from",
                             dest='resume_from_checkpoint')
+        parser.add_argument('--fc1', default=512, type=int,
+                            help="the number of nodes in the first fc layer of the decoder (default: 512)",
+                            dest='fc1')
+        parser.add_argument('--fc2', default=1024, type=int,
+                            help="the number of nodes in the first fc layer of the decoder (default: 1024)",
+                            dest='fc2')
+
 
         return parser
 
