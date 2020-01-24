@@ -4,10 +4,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
-import os
 
-def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def show_images(data_loader, classes, num_imgs=8):
     batch = next(iter(data_loader))
@@ -33,28 +30,3 @@ def show_images(data_loader, classes, num_imgs=8):
         img = transforms.ToPILImage()(sample)
         ax.set_title(classes[target])
         ax.imshow(img)
-
-
-def squash_fn(tensor, dim=-1):
-    if torch.sum(torch.isnan(tensor)).squeeze() > 0:
-        print('squash_fn input tensor contains nan')
-    squared_norm = (tensor ** 2).sum(dim=dim, keepdim=True)
-    scale = squared_norm / (1.0 + squared_norm)
-    norm = torch.sqrt(squared_norm + 1e-7)
-    unit_vector = tensor / norm
-    s = scale * unit_vector
-    if torch.sum(torch.isnan(s)).squeeze() > 0:
-        print('squash_fn output tensor contains nan')
-    return s
-
-
-def get_predictions(y_hat):
-
-    predictions = torch.argmax(F.softmax(y_hat, dim=1), dim=1)
-
-    return predictions
-
-
-def compute_accuracy(predictions, targets):
-
-    return torch.mean((predictions == targets).double())
