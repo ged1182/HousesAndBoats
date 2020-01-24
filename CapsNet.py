@@ -1,10 +1,10 @@
-import torch.cuda as cuda
+from torch import cuda
 from torch.nn import Conv2d, ReLU, Parameter, Sequential, Linear, Sigmoid, ModuleList
 from torch import stack, transpose, sum, sqrt, randn, matmul, zeros_like, tensor, argmax, mean
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, Normalize, ToTensor
-from torchvision.datasets import MNIST
+from torchvision.transforms import Compose, Normalize, ToTensor, Grayscale
+from torchvision.datasets import MNIST, ImageFolder
 import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer, LightningModule
@@ -12,25 +12,28 @@ from pytorch_lightning.callbacks import EarlyStopping
 from torch.nn import Module, MSELoss
 from torch.nn.functional import softmax, one_hot
 from collections import OrderedDict
+from argparse import ArgumentParser
+import os
 
 EPSILON = 1e-8
+DATA_FOLDER = './data'
 
 
-def get_device():
-    return 'cuda:0' if cuda.is_available() else 'cpu'
+def count_parameters(model):
+    return np.sum([p.numel() for p in model.parameters() if p.requires_grad])
 
 
-def get_new_dim(h_in, w_in, conv=Conv2d(1, 4, 3)):
+def compute_dims_after_conv(input_size, conv=Conv2d(1, 4, 3)):
     """
     Compute the new height and width after performing the convolution.
 
-    :param h_in: (int) the height of the input tensor
-    :param w_in: (int) the width of the input tensor
+    :param input_size: [channels_in, h_in, w_in] (int,int,int)
     :param conv: (Conv2d) the convolution used
-    :return: [h_out, w_out] ([int int]) the height and width after applying Conv2d
+    :return: out_size [channels_out, h_out, w_out] (int, int, int)
     """
-
+    _, h_in, w_in = input_size
     kernel_size = conv.kernel_size
+    channels_out = conv.out_channels
     padding = conv.padding
     stride = conv.stride
     dilation = conv.dilation
@@ -39,7 +42,8 @@ def get_new_dim(h_in, w_in, conv=Conv2d(1, 4, 3)):
     w_out = (w_in + 2 * padding[1] - dilation[1] * (kernel_size[1] - 1) - 1) / (stride[1]) + 1
     h_out = int(np.floor(h_out))
     w_out = int(np.floor(w_out))
-    return h_out, w_out
+    out_size = [channels_out, h_out, w_out]
+    return out_size
 
 
 def squash(capsules_in, dim=-1):
@@ -60,7 +64,8 @@ def squash(capsules_in, dim=-1):
     return capsules_out
 
 
-def build_trainer(min_epochs=10, max_epochs=20, patience=5, gpus=1, overfit_pct=0.0, resume_from_checkpoint=None):
+def build_trainer(min_epochs=1, max_epochs=100, patience=5, gpus=0, overfit_pct=0.0, dataset="HB", decoder=False,
+                  resume_from_checkpoint=""):
     """
     Returns a pytorch_lightning_Trainer object with early stopping enabled
 
@@ -69,14 +74,17 @@ def build_trainer(min_epochs=10, max_epochs=20, patience=5, gpus=1, overfit_pct=
     :param patience: (int) The number of epochs with no improvement after which training is stopped (default: 5)
     :param gpus: the number of gpus to train on (for cpu put gpus=0) (default: 1)
     :param overfit_pct: (float b/w 0 and 1) Overfits the model to a portion of the training set (default: 0.0)
+    :param dataset: (string) the name of the dataset used; used to set  save path for logs and checkpoints (default: HB)
     :param resume_from_checkpoint: (str) path to a checkpoint from which to resume training (default: None)
+    :param decoder: (bool): whether the model contains a decoder. This affects the save_path for the logs/checkpoints
     :return: a Trainer object
     """
-    # logger = TensorBoardLogger(save_dir='./Logs/MNIST/', name='CapsNet')
     early_stop_callback = EarlyStopping(patience=patience)
+    checkpoint_path = resume_from_checkpoint if len(resume_from_checkpoint) > 0 else None
+    save_path = os.path.join('./Logs', dataset, 'CapsNet-D') if decoder else os.path.join('./Logs', dataset, 'CapsNet')
     trainer = Trainer(early_stop_callback=early_stop_callback, min_epochs=min_epochs,
                       max_epochs=max_epochs, gpus=gpus, overfit_pct=overfit_pct,
-                      resume_from_checkpoint=resume_from_checkpoint, default_save_path='./Logs/MNIST/CapsNet')
+                      resume_from_checkpoint=checkpoint_path, default_save_path=save_path)
     return trainer
 
 
@@ -227,7 +235,7 @@ class ClassCaps(Module):
         self.caps_dim_out = caps_dim_out
         self.routing_iters = routing_iters
 
-        self.w_ij = Parameter(0.05*randn([1, nb_classes, nb_caps_in, caps_dim_in, caps_dim_out]), requires_grad=True)
+        self.w_ij = Parameter(0.05 * randn([1, nb_classes, nb_caps_in, caps_dim_in, caps_dim_out]), requires_grad=True)
         self.squash = Squash()
 
     def forward(self, caps_in):
@@ -313,7 +321,7 @@ class CapsNet(LightningModule):
     This is the main model which optionally includes a decoder.
     """
 
-    def __init__(self, nb_classes=10, train_batch_size=128, val_batch_size=128, reconstruction=False, lr=1e-3):
+    def __init__(self, hparams):
         """
         :param nb_classes:
         :param train_batch_size:
@@ -322,25 +330,44 @@ class CapsNet(LightningModule):
         :param lr:
         """
         super(CapsNet, self).__init__()
-        # self.hparams = hparams
-        # self.nb_classes = hparams.nb_classes
-        self.nb_classes = nb_classes
-        self.train_batch_size = train_batch_size
-        self.val_batch_size = val_batch_size
-        self.reconstruction = reconstruction
-        self.lr = lr
-        self.input_size = [1, 28, 28]
+        self.hparams = hparams
+        self.train_dataset, self.val_dataset = self.get_datasets(dataset_name=self.hparams.dataset)
+        self.nb_classes = len(self.train_dataset.classes)
+        self.input_size = self.train_dataset[0][0].shape
+        self.conv_channels = hparams.conv_channels
+        conv_layer = Conv2d(self.input_size[0],
+                   out_channels=hparams.conv_channels,
+                   kernel_size=9)
 
+        primaryCaps_layer = PrimaryCaps(caps_dim=hparams.primary_caps_dim,
+                        kernel_size=9,
+                        in_channels=self.conv_channels,
+                        stride=2,
+                        padding=0,
+                        nb_capsule_blocks=hparams.nb_capsule_blocks)
+        [c, h, w] = compute_dims_after_conv(self.input_size, conv_layer)
+        [c, h, w] = compute_dims_after_conv([c, h, w], Conv2d(1, hparams.class_caps_dim, kernel_size=9, stride=2))
+        nb_caps_in = hparams.nb_capsule_blocks * h * w
+
+        classCaps_layer = ClassCaps(nb_caps_in=nb_caps_in,
+                      caps_dim_in=hparams.primary_caps_dim,
+                      nb_classes=self.nb_classes,
+                      caps_dim_out=hparams.class_caps_dim,
+                      routing_iters=hparams.routing_iters)
         self.encoder = Sequential(
-            Conv2d(self.input_size[0], out_channels=256, kernel_size=9),
-            PrimaryCaps(),
-            ClassCaps())
+            conv_layer,
+            primaryCaps_layer,
+            classCaps_layer
+        )
 
         self.decoder = None
         self.margin_loss = MarginLoss(nb_classes=self.nb_classes)
-        self.mse_loss = MSELoss(reduction='mean')
-        if self.reconstruction:
-            self.decoder = Decoder()
+        self.mse_loss = MSELoss(reduction='sum')
+
+        if hparams.reconstruction:
+            out_features = int(np.prod(self.input_size))
+            decoder_layer = Decoder(in_features=hparams.class_caps_dim, out_features=np.prod(self.input_size))
+            self.decoder = decoder_layer
 
     def forward(self, images, labels=tensor([])):
         """
@@ -358,7 +385,7 @@ class CapsNet(LightningModule):
             'class_probs': class_probs,
             'predictions': predictions
         })
-        if self.reconstruction:
+        if self.hparams.reconstruction:
             if labels.shape[0] > 0:
                 mask = one_hot(labels, num_classes=self.nb_classes).float()  # [batch_size, nb_classes]
             else:
@@ -492,10 +519,7 @@ class CapsNet(LightningModule):
         :return: a DataLoader object
         """
 
-        transform = Compose([ToTensor(), Normalize((0.5,), (1.0,))])
-        data_dir = './data/'
-        dataset = MNIST(root=data_dir, train=True, transform=transform, target_transform=None, download=True)
-        loader = DataLoader(dataset=dataset, batch_size=self.train_batch_size, shuffle=True)
+        loader = DataLoader(dataset=self.train_dataset, batch_size=self.hparams.train_batch_size, shuffle=True)
         return loader
 
     @pl.data_loader
@@ -505,18 +529,136 @@ class CapsNet(LightningModule):
 
         :return: a DataLoader object
         """
-        transform = Compose([ToTensor(), Normalize((0.5,), (1.0,))])
-        data_dir = './data/'
-        dataset = MNIST(root=data_dir, train=False, transform=transform, target_transform=None, download=True)
-        loader = DataLoader(dataset=dataset, batch_size=self.val_batch_size, shuffle=True)
+        loader = DataLoader(dataset=self.val_dataset, batch_size=self.hparams.val_batch_size, shuffle=True)
         return loader
 
     def configure_optimizers(self):
         """
         Configure the optimizer to use in the training loop
 
-        :return: Adam optimizer with lr=self.lr
+        :return: Adam optimizer with lr=self.hparams.lr
         """
-        optimizer = Adam(self.parameters(), lr=self.lr)
-        lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=15, min_lr=1e-6)
-        return [optimizer], [lr_scheduler]
+        optimizer = Adam(self.parameters(), lr=self.hparams.lr)
+
+        # scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=self.hparams.gamma)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=2, verbose=True, min_lr=1e-6)
+        return [optimizer], [scheduler]
+
+    @staticmethod
+    def get_datasets(dataset_name="HB"):
+        if dataset_name == "MNIST":
+            transform = Compose([ToTensor(), Normalize((0.5,), (1.0,))])
+            train_dataset = MNIST(root=DATA_FOLDER, train=True, transform=transform, target_transform=None,
+                                  download=True)
+            val_dataset = MNIST(root=DATA_FOLDER, train=False, transform=transform, target_transform=None,
+                                download=True)
+        else:
+            if dataset_name == "HB":
+                transform = Compose([Grayscale(), ToTensor()])
+            else:
+                transform = ToTensor()
+            train_dataset = ImageFolder(root=os.path.join(DATA_FOLDER, dataset_name, "training"), transform=transform)
+            val_dataset = ImageFolder(root=os.path.join(DATA_FOLDER, dataset_name, "validation"), transform=transform)
+
+        print(f"Dataset: {dataset_name}")
+        print(f"Training Examples: {'{: ,}'.format(len(train_dataset))}")
+        print(f"Validation Examples: {'{: ,}'.format(len(val_dataset))}")
+
+        return train_dataset, val_dataset
+
+    @staticmethod
+    def add_model_specific_args(parent_parser):
+        parser = ArgumentParser(parents=[parent_parser], add_help=True)
+        parser.add_argument('--min_epochs', default=1, type=int,
+                            help="min number of epochs (default: 1)",
+                            metavar="min_epochs")
+        parser.add_argument('--max_epochs', default=100, type=int,
+                            help="the max number of epochs (default: 10)",
+                            metavar="max_epochs")
+        parser.add_argument('--train_batch_size', default=128, type=int,
+                            help="batch_size used for training (default: 128)",
+                            metavar="train_batch_size",
+                            dest="train_batch_size")
+        parser.add_argument('--val_batch_size', default=1024, type=int,
+                            help="batch_size used during validation (default: 1024)",
+                            metavar="val_batch_size",
+                            dest="val_batch_size")
+        parser.add_argument('--lr', default=1e-3, type=float,
+                            help="initial learning rate (default: 1e-3)",
+                            metavar='lr')
+        # parser.add_argument('--gamma', default=0.95, type=float,
+        #                     help="lr decay multiplier after every epoch (default: 0.95)",
+        #                     metavar='gamma')
+        parser.add_argument('--patience', default=5, type=int,
+                            help="number of epochs without improvement to 'val_loss' before early stopping.",
+                            dest='patience')
+        parser.add_argument('--overfit_pct', default=0.0, type=float,
+                            help="the proportion of the data to use to overfit (default=0.0)",
+                            dest='overfit_pct')
+        parser.add_argument('--conv_channels', default=256, type=int,
+                            help="the number of out_channels in Conv2d for the first hidden layer (default: 256)",
+                            dest='conv_channels')
+        parser.add_argument('--nb_capsule_blocks', default=32, type=int,
+                            help="the number of capsule blocks in the PrimaryCaps layer (default: 32)",
+                            dest='nb_capsule_blocks')
+        parser.add_argument('--primary_caps_dim', default=8, type=int,
+                            help="the dimension of the primary capsules (default: 8)",
+                            dest='primary_caps_dim')
+        parser.add_argument('--class_caps_dim', default=16, type=int,
+                            help="the dimension of the output capsules (default: 16)",
+                            dest='class_caps_dim')
+        parser.add_argument('--routing_iters', default=3, type=int,
+                            help="number of iterations for the routing algorithm (default: 3)",
+                            dest='routing_iters')
+        parser.add_argument('--reconstruction', default=False, type=bool,
+                            help="whether to include reconstruction (default: False)",
+                            dest='reconstruction')
+        parser.add_argument('--resume_from_ckpt', default="", type=str,
+                            help="the path of a checkpoint to resume training from",
+                            dest='resume_from_checkpoint')
+
+        return parser
+
+
+def get_args():
+    parent_parser = ArgumentParser(add_help=False)
+    parent_parser.add_argument('--dataset', default='HB', type=str,
+                               help="The dataset to use (default: HB, choices: ['MNIST', 'HB', 'HB_Colored'])",
+                               choices=['MNIST', 'HB', 'HB_Colored'],
+                               metavar='dataset')
+    parser = CapsNet.add_model_specific_args(parent_parser)
+    return parser.parse_args()
+
+
+def main(hparams):
+    model = CapsNet(hparams)
+    print(f"The model has {'{:,}'.format(count_parameters(model))} parameters.")
+
+    if cuda.is_available():
+        print("GPU Found!")
+        trainer = build_trainer(min_epochs=hparams.min_epochs,
+                                max_epochs=hparams.max_epochs,
+                                patience=hparams.patience,
+                                gpus=1,
+                                overfit_pct=hparams.overfit_pct,
+                                dataset=hparams.dataset,
+                                resume_from_checkpoint=hparams.resume_from_checkpoint
+                                )
+    else:
+        print("GPU Not Found! Will use CPU.")
+        trainer = build_trainer(min_epochs=hparams.min_epochs,
+                                max_epochs=hparams.max_epochs,
+                                patience=hparams.patience,
+                                gpus=0,
+                                overfit_pct=hparams.overfit_pct,
+                                dataset=hparams.dataset,
+                                resume_from_checkpoint=hparams.resume_from_checkpoint
+                                )
+
+    trainer.fit(model)
+
+
+if __name__ == '__main__':
+    hparams = get_args()
+    print(hparams)
+    main(hparams)
