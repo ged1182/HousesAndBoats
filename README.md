@@ -31,7 +31,22 @@ We introduce two datasets "Houses and Boats" ('./data/HB') and "Houses and Boats
 ('./data/HB_Colored'). The goal of these this project, via these datasets, is to understand how
 capsule networks learn the instantiating parameters of the objects detected in the input image.
 
+![HB Examples](./Images/HB_Examples.png)
 
+![HB Colored Examples](./Images/HB_Colored_Examples.png)
+
+### Goals:
+    
+1. Understand how the CapsNet learns the instantiating parameters.
+    
+2. Investigate whether CapsNet can learn that 'boats' and 'houses' are each
+    made up of parts in a specific relationship to one another.
  
+ ### Instantiating Parameters
+
+ - Rotation
+ - Color
+ - Size (scale)
+ - Parts  
  
  

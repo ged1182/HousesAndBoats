@@ -84,7 +84,7 @@ def build_trainer(min_epochs=1, max_epochs=100, patience=5, gpus=0, overfit_pct=
     save_path = os.path.join('./Logs', dataset, 'CapsNet-D') if decoder else os.path.join('./Logs', dataset, 'CapsNet')
     trainer = Trainer(early_stop_callback=early_stop_callback, min_epochs=min_epochs,
                       max_epochs=max_epochs, gpus=gpus, overfit_pct=overfit_pct,
-                      resume_from_checkpoint=checkpoint_path, default_save_path=save_path)
+                      resume_from_checkpoint=checkpoint_path, default_save_path=save_path, num_sanity_val_steps=0)
     return trainer
 
 
@@ -642,7 +642,8 @@ def main(hparams):
                                 gpus=1,
                                 overfit_pct=hparams.overfit_pct,
                                 dataset=hparams.dataset,
-                                resume_from_checkpoint=hparams.resume_from_checkpoint
+                                resume_from_checkpoint=hparams.resume_from_checkpoint,
+                                decoder=hparams.reconstruction
                                 )
     else:
         print("GPU Not Found! Will use CPU.")
@@ -652,7 +653,8 @@ def main(hparams):
                                 gpus=0,
                                 overfit_pct=hparams.overfit_pct,
                                 dataset=hparams.dataset,
-                                resume_from_checkpoint=hparams.resume_from_checkpoint
+                                resume_from_checkpoint=hparams.resume_from_checkpoint,
+                                decoder=hparams.recontruction
                                 )
 
     trainer.fit(model)
