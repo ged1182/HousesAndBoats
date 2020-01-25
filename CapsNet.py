@@ -357,11 +357,11 @@ class CapsNet(LightningModule):
 
         self.decoder = None
         self.margin_loss = MarginLoss(nb_classes=self.nb_classes)
-        self.mse_loss = MSELoss(reduction='mean')
+        self.mse_loss = MSELoss(reduction='sum')
 
         if self.hparams.reconstruction:
             out_features = int(np.prod(self.input_size))
-            decoder_layer = Decoder(nb_caps_in=self.nb_classes,
+            decoder_layer = Decoder(nb_classes=self.nb_classes,
                                     class_caps_dim=hparams.class_caps_dim,
                                     fc_1=hparams.fc1,
                                     fc_2=hparams.fc2,
@@ -420,7 +420,7 @@ class CapsNet(LightningModule):
 
         if 'reconstructions' in output.keys():
             mse_loss_ = self.mse_loss(images.view(images.shape[0], -1), output['reconstructions'])
-            loss = margin_loss_ + 0.0005 * mse_loss_
+            loss = margin_loss_ + self.hparams.mse_factor * mse_loss_
             log['mse_loss'] = mse_loss_
 
         log['loss'] = loss
@@ -475,7 +475,7 @@ class CapsNet(LightningModule):
 
         if 'reconstructions' in output.keys():
             mse_loss_ = self.mse_loss(images.view(images.shape[0], -1), output['reconstructions'])
-            loss = margin_loss_ + 0.0005 * mse_loss_
+            loss = margin_loss_ + self.hparams.mse_factor * mse_loss_
             log['mse_loss'] = mse_loss_
 
         log['loss'] = loss
@@ -553,7 +553,7 @@ class CapsNet(LightningModule):
                                 download=True)
         else:
             if dataset_name == "HB":
-                transform = Compose([Grayscale(), Resize([28, 28]), ToTensor()])
+                transform = Compose([Grayscale(), ToTensor()])
             else:
                 transform = Compose([Resize([28, 28]), ToTensor()])
             train_dataset = ImageFolder(root=os.path.join(DATA_FOLDER, dataset_name, "training"), transform=transform)
@@ -622,6 +622,9 @@ class CapsNet(LightningModule):
         parser.add_argument('--fc2', default=1024, type=int,
                             help="the number of nodes in the first fc layer of the decoder (default: 1024)",
                             dest='fc2')
+        parser.add_argument('--mse_factor', default=0.0005, type=float,
+                           help="the factor of the mse_loss for a encoder-decoder network (default: 0.0005)",
+                            dest='mse_factor')
 
 
         return parser
