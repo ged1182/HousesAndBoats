@@ -48,7 +48,7 @@ capsule networks learn the instantiating parameters of the objects detected in t
 2. Investigate whether CapsNet can learn that 'boats' and 'houses' are each
     made up of parts in a specific relationship to one another.
  
-### Instantiating Parameters
+#### Instantiating Parameters
  - Rotation
  - Color
  - Size (scale)
